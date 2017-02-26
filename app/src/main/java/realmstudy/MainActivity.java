@@ -121,7 +121,7 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
 
         return v;
     }
-
+//initialize views
     private void initialize(View v) {
         undo = (ImageButton) v.findViewById(realmstudy.R.id.undo);
         redo = (ImageButton) v.findViewById(realmstudy.R.id.redo);
