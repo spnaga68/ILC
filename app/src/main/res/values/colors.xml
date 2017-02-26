@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+   <!-- <color name="colorPrimary">#795548</color>
+    <color name="colorPrimaryDark">#4E342E</color>
+    <color name="colorAccent">#795548</color>
+    team color 635540
+    -->
+
+    <color name="colorPrimary">#F57C00</color>
+    <color name="colorPrimaryDark">#E65100</color>
+    <color name="colorAccent">#FF6D00</color>
+
+
+    <color name="semi_transperant">#66795548</color>
+
+
+    <color name="dialog_text_color">#333</color>
+    <color name="dialog_header_color">#E65100</color>
+    <color name="dialog_header_txt_color">#fff</color>
+    <color name="white">#fff</color>
+    <color name="black">#000</color>
+
+
+    <color name="blue">#f5f5f0</color>
+    <color name="clicked">#FFAFAEAE</color>
+    <color name="shade">#6c6c6c</color>
+
+    <color name="button">#FFAFAEAE</color>
+
+    <color name="text">#FFAFAEAE</color>
+    <color name="head">#F5F5F5</color>
+
+
+    <color name="transperant">#00000000</color>
+
+    <color name="light_grey">#e0e0e0</color>
+
+    <color name="button_dialog">#FAFAFA</color>
+    <color name="background_title_dialog">#E0E0E0</color>
+    <color name="back_ground_dark">#FFF</color>
+    <color name="button_text_color">#fff</color>
+    <color name="edit_text_color">#212121</color>
+    <color name="appbg">#fff</color>
+</resources>

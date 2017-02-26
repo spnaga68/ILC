@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <realmstudy.lib.customViews.SemiLargeTextView
+        android:layout_width="match_parent"
+        android:id="@+id/header_txt"
+        android:gravity="center"
+        android:padding="10dp"
+        android:textColor="@color/dialog_header_txt_color"
+        android:background="@color/dialog_header_color"
+        android:layout_height="wrap_content" />
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:background="@color/appbg"
+        android:layout_height="match_parent">
+
+        <realmstudy.lib.customViews.SemiLargeTextView
+            android:id="@+id/no_data"
+            android:layout_width="match_parent"
+            android:gravity="center_horizontal"
+            android:layout_height="wrap_content" />
+        <ListView
+            android:id="@+id/list_view"
+            android:layout_width="match_parent"
+            android:headerDividersEnabled="false"
+            android:layout_height="wrap_content"
+            android:divider="@drawable/divider_listview"
+
+            android:scrollbars="none"></ListView>
+    </FrameLayout>
+</LinearLayout>

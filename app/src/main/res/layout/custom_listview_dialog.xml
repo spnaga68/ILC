@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/inner_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical" >
+
+
+
+
+
+
+
+
+            <Button
+                android:id="@+id/butConfirmTime"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorAccent"
+                android:paddingLeft="10dp"
+                android:layout_alignParentBottom="true"
+                android:paddingRight="10dp"
+                android:text="@string/submit"
+                android:textColor="@color/white" />
+
+
+            <include
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                layout="@layout/simple_listview_header"
+                android:layout_above="@id/butConfirmTime"
+                android:layout_alignParentTop="true"
+               />
+
+
+</RelativeLayout>

@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:focusable="true"
+    android:clickable="true"
+    tools:context=".MainActivity">
+
+
+    <realmstudy.lib.customViews.LargerTextView
+        android:id="@+id/num_balls_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:text="balls"
+         />
+
+    <realmstudy.lib.customViews.LargerTextView
+        android:id="@+id/total_runs_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/num_balls_txt"
+        android:layout_centerHorizontal="true"
+        android:text="runs"
+         />
+
+    <LinearLayout
+        android:id="@+id/striker_lay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/total_runs_txt"
+        android:orientation="horizontal">
+
+        <realmstudy.lib.customViews.LargerTextView
+            android:id="@+id/striker_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_centerHorizontal="true"
+            android:text="NN"
+             />
+
+        <realmstudy.lib.customViews.LargerTextView
+            android:id="@+id/striker_score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginRight="5dp"
+            android:text="0"
+             />
+
+        <realmstudy.lib.customViews.LargerTextView
+            android:id="@+id/striker_balls"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginRight="5dp"
+            android:text="0"
+             />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/non_striker_lay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/striker_lay"
+        android:orientation="horizontal">
+
+        <realmstudy.lib.customViews.LargerTextView
+            android:id="@+id/non_striker_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginRight="5dp"
+            android:text="RR"
+             />
+
+        <realmstudy.lib.customViews.LargerTextView
+            android:id="@+id/non_striker_score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_centerHorizontal="true"
+            android:layout_marginRight="5dp"
+            android:text="0"
+             />
+
+        <realmstudy.lib.customViews.LargerTextView
+            android:id="@+id/non_striker_balls"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_centerHorizontal="true"
+
+            android:text="0"
+             />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/current_bowler_lay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/non_striker_lay"
+        android:orientation="horizontal">
+
+        <realmstudy.lib.customViews.LargerTextView
+            android:id="@+id/current_bowler_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Ashwin"
+             />
+
+        <realmstudy.lib.customViews.LargerTextView
+            android:id="@+id/current_bowler_overs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="15dp"
+            android:text="0"
+             />
+
+        <realmstudy.lib.customViews.LargerTextView
+            android:id="@+id/current_bowler_runs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginRight="5dp"
+            android:text="0"
+             />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/next_bowler_lay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/current_bowler_lay"
+        android:orientation="horizontal">
+
+        <realmstudy.lib.customViews.LargerTextView
+            android:id="@+id/next_bowler_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_centerHorizontal="true"
+            android:text="Zaheer"
+             />
+
+        <realmstudy.lib.customViews.LargerTextView
+            android:id="@+id/next_bowler_overs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="15dp"
+            android:text="0"
+             />
+
+        <realmstudy.lib.customViews.LargerTextView
+            android:id="@+id/next_bowler_runs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginRight="5dp"
+            android:text="0"
+             />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/run_lay_L"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/submit_lay"
+        android:weightSum="7">
+
+        <realmstudy.lib.customViews.NormalTextView
+            android:id="@+id/dot_txt"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:onClick="onClick"
+            android:text="0" />
+
+        <realmstudy.lib.customViews.NormalTextView
+            android:id="@+id/one_run_txt"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:onClick="onClick"
+            android:text="1" />
+
+        <realmstudy.lib.customViews.NormalTextView
+            android:id="@+id/two_run_txt"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:onClick="onClick"
+            android:text="2" />
+
+        <realmstudy.lib.customViews.NormalTextView
+            android:id="@+id/three_run_txt"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:onClick="onClick"
+            android:text="3" />
+
+        <realmstudy.lib.customViews.NormalTextView
+            android:id="@+id/four_run_txt"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:onClick="onClick"
+            android:text="4" />
+
+        <realmstudy.lib.customViews.NormalTextView
+            android:id="@+id/bfour_txt"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:onClick="onClick"
+            android:text="4" />
+
+        <realmstudy.lib.customViews.NormalTextView
+            android:id="@+id/bSix_txt"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:onClick="onClick"
+            android:text="6" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/extras_lay_L"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/run_lay_L"
+        android:weightSum="6">
+
+        <realmstudy.lib.customViews.NormalTextView
+            android:id="@+id/legal_ball_txt"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:onClick="onClick"
+            android:text="Legal" />
+
+        <realmstudy.lib.customViews.NormalTextView
+            android:id="@+id/wide_txt"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:onClick="onClick"
+            android:text="Wd" />
+
+        <realmstudy.lib.customViews.NormalTextView
+            android:id="@+id/no_ball_txt"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:onClick="onClick"
+            android:text="NB" />
+
+        <realmstudy.lib.customViews.NormalTextView
+            android:id="@+id/byes_txt"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:onClick="onClick"
+            android:text="B" />
+
+        <realmstudy.lib.customViews.NormalTextView
+            android:id="@+id/leg_byes_txt"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:onClick="onClick"
+            android:text="LB" />
+
+        <realmstudy.lib.customViews.NormalTextView
+            android:id="@+id/granted_txt"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:onClick="onClick"
+            android:text="Gr" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/submit_lay"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        android:layout_height="wrap_content">
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/out"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/out" />
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/submit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+           android:layout_weight="1"
+            android:text="submit" />
+
+    </LinearLayout>
+</RelativeLayout>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/appbg"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:visibility="gone"
+        android:orientation="vertical"
+       />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <realmstudy.lib.customViews.NormalTextView
+                android:layout_width="0dp"
+                android:layout_height="34dp"
+                android:layout_weight="1.5"
+                android:paddingLeft="5dp"
+                android:gravity="center"
+                android:textColor="@color/colorAccent"
+                android:text="Team" />
+
+            <realmstudy.lib.customViews.NormalTextView
+                android:layout_width="0dp"
+                android:layout_height="34dp"
+                android:layout_weight="0.25"
+                android:gravity="center_vertical"
+                android:textColor="@color/colorAccent"
+                android:text="Home" />
+
+            <realmstudy.lib.customViews.NormalTextView
+                android:layout_width="0dp"
+                android:layout_height="34dp"
+                android:layout_weight="0.25"
+                android:gravity="center_vertical"
+                android:textColor="@color/colorAccent"
+                android:text="Away" />
+        </LinearLayout>
+
+
+</LinearLayout>

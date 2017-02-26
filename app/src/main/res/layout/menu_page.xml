@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ff0000"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:weightSum="3">
+<LinearLayout
+        android:id="@+id/menu_layer_one"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_alignParentTop="true"
+        android:layout_weight="1"
+
+        android:background="@color/white"
+        android:weightSum="2">
+
+        <RelativeLayout android:onClick="onClick"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+android:id="@+id/new_game_menu_lay"
+            android:padding="5dp">
+
+            <ImageView
+                android:id="@+id/new_game_image"
+                android:layout_width="60dp"
+                android:layout_marginTop="8dp"
+                android:layout_height="60dp"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/cricket_equipments" />
+
+            <TextView
+                android:id="@+id/new_game_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/new_game_image"
+                android:layout_centerHorizontal="true"
+                android:textColor="@color/black"
+                android:textSize="@dimen/header_text"
+                android:text="@string/new_game" />
+
+            <TextView
+                android:id="@+id/new_game_menu_desc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/new_game_name"
+                android:layout_centerHorizontal="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:text="@string/new_game_desc" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_gravity="right"
+                android:layout_margin="7dp"
+                android:src="@drawable/ic_arrow_forward_black_24dp" />
+
+        </RelativeLayout>
+
+        <RelativeLayout android:onClick="onClick"
+            android:id="@+id/saved_game_menu_lay"
+            android:background="@color/light_grey"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:padding="5dp">
+
+            <ImageView
+                android:id="@+id/saved_game_image"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginTop="8dp"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/cricket_equipments" />
+
+            <TextView
+                android:id="@+id/saved_game_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/saved_game_image"
+                android:layout_centerHorizontal="true"
+                
+                android:textSize="@dimen/header_text"
+                android:textColor="@color/black"
+                android:text="@string/saved_game" />
+
+            <TextView
+                android:id="@+id/saved_game_desc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/saved_game_name"
+                android:layout_centerHorizontal="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:text="@string/saved_game_desc" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_gravity="right"
+                android:layout_margin="7dp"
+                android:src="@drawable/ic_arrow_forward_black_24dp" />
+
+        </RelativeLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/menu_layer_two"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@+id/menu_layer_one"
+        android:layout_weight="1"
+
+        android:background="@color/white"
+        android:weightSum="2">
+
+        <RelativeLayout android:onClick="onClick"
+            android:id="@+id/profile_menu_lay"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/light_grey"
+            android:orientation="vertical"
+            android:padding="5dp">
+
+            <ImageView
+                android:id="@+id/profile_image"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginTop="8dp"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/cricket_equipments" />
+
+            <TextView
+                android:id="@+id/profile_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/profile_image"
+                android:layout_centerHorizontal="true"
+                
+                android:textSize="@dimen/header_text"
+                android:textColor="@color/black"
+                android:text="@string/profile" />
+
+            <TextView
+                android:id="@+id/profile_desc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/profile_name"
+                android:layout_centerHorizontal="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:text="@string/profile_desc" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_gravity="right"
+                android:layout_margin="7dp"
+                android:src="@drawable/ic_arrow_forward_black_24dp" />
+
+        </RelativeLayout>
+
+        <RelativeLayout android:onClick="onClick"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:id="@+id/schedule_game_menu_lay"
+            android:padding="5dp">
+
+            <ImageView
+                android:id="@+id/schedule_game_image"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginTop="8dp"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/cricket_equipments" />
+
+            <TextView
+                android:id="@+id/schedule_game_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/schedule_game_image"
+                android:layout_centerHorizontal="true"
+                android:textColor="@color/black"
+                android:textSize="@dimen/header_text"
+                android:text="@string/schedule_game" />
+
+            <TextView
+                android:id="@+id/schedule_game_desc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/schedule_game_name"
+                android:layout_centerHorizontal="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:text="@string/schedule_game_desc" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_gravity="right"
+                android:layout_margin="7dp"
+                android:src="@drawable/ic_arrow_forward_black_24dp" />
+
+        </RelativeLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/menu_layer_three"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@+id/menu_layer_two"
+        android:layout_weight="1"
+
+        android:background="@color/white"
+        android:weightSum="2">
+
+        <RelativeLayout android:onClick="onClick"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:id="@+id/add_team_menu_lay"
+            android:orientation="vertical"
+            android:padding="5dp">
+
+            <ImageView
+                android:id="@+id/add_team_image"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginTop="8dp"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/cricket_equipments" />
+
+            <TextView
+                android:id="@+id/add_team_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/add_team_image"
+                android:layout_centerHorizontal="true"
+                android:textColor="@color/black"
+                android:textSize="@dimen/header_text"
+                android:text="@string/add_team" />
+
+            <TextView
+                android:id="@+id/add_team_desc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/add_team_name"
+                android:layout_centerHorizontal="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:text="@string/add_team_desc" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_gravity="right"
+                android:layout_margin="7dp"
+                android:src="@drawable/ic_arrow_forward_black_24dp" />
+
+        </RelativeLayout>
+
+        <RelativeLayout android:onClick="onClick"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/light_grey"
+            android:id="@+id/add_player_lay"
+            android:orientation="vertical"
+            android:padding="5dp">
+
+            <ImageView
+                android:id="@+id/add_player_image"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginTop="8dp"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/cricket_equipments" />
+
+            <TextView
+                android:id="@+id/add_player_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/add_player_image"
+                android:layout_centerHorizontal="true"
+                
+                android:textSize="@dimen/header_text"
+                android:textColor="@color/black"
+                android:text="@string/add_player" />
+
+            <TextView
+                android:id="@+id/add_player_desc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/add_player_name"
+                android:layout_centerHorizontal="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:text="@string/add_player_desc" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_gravity="right"
+                android:layout_margin="7dp"
+                android:src="@drawable/ic_arrow_forward_black_24dp" />
+
+        </RelativeLayout>
+    </LinearLayout>
+</LinearLayout>
