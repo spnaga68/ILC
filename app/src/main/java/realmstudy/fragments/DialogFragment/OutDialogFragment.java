@@ -355,11 +355,11 @@ public class OutDialogFragment extends DialogFragment {
 
     ArrayList<Player> getBowlingTeamPlayer() {
         ArrayList<Player> bowlingTeamPlayers = new ArrayList<>();
-        if (!matchDetails.getBowlingTeamPlayer().trim().isEmpty()) {
+        if (matchDetails.getBowlingTeamPlayer()!=null) {
 
-            String s[] = matchDetails.getBowlingTeamPlayer().split(",");
-            for (int i = 0; i < s.length; i++) {
-                bowlingTeamPlayers.add(RealmDB.getPlayer(getActivity(), realm, Integer.parseInt(s[i])));
+        //    String s[] = matchDetails.getBowlingTeamPlayer().split(",");
+            for (int i = 0; i < matchDetails.getBowlingTeamPlayer().size(); i++) {
+                bowlingTeamPlayers.add(RealmDB.getPlayer(getActivity(), realm, (matchDetails.getBowlingTeamPlayer().get(i).getpID())));
 
             }
             return bowlingTeamPlayers;

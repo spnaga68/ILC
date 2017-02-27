@@ -18,6 +18,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import io.realm.RealmList;
 import realmstudy.MainFragmentActivity;
 import realmstudy.data.CommanData;
 import realmstudy.data.RealmObjectData.BatingProfile;
@@ -238,8 +239,8 @@ public class SelectPlayerDialog extends DialogFragment {
         if (matchDetails.getHomeTeam() != null) {
             System.out.println("_________________ss" + matchDetails.getHomeTeam().name);
             System.out.println("_________________dd" + matchDetails.getBattingTeamPlayer() + "000");
-            String battingTeamPlayers = matchDetails.getBattingTeamPlayer();
-            String bowlingTeamPlayers = matchDetails.getBowlingTeamPlayer();
+            RealmList<Player> battingTeamPlayers = matchDetails.getBattingTeamPlayer();
+            RealmList<Player>bowlingTeamPlayers = matchDetails.getBowlingTeamPlayer();
 
 
             System.out.println("_________________dd1__" + matchDetails.getBattingTeamPlayer()+"____"+matchDetails.getBowlingTeamPlayer()+"__"+ishomeTeam+"___"+matchDetails.isHomeTeamBatting());
@@ -247,19 +248,19 @@ public class SelectPlayerDialog extends DialogFragment {
                 System.out.println("_________________dd2" + bowlingTeamPlayers);
                 if (battingTeamPlayers != null && !battingTeamPlayers.equals("")) {
 
-                    String battingTeamPlayer[] = matchDetails.getBattingTeamPlayer().split(",");
+                   // String battingTeamPlayer[] = matchDetails.getBattingTeamPlayer().split(",");
 
-                    for (int i = 0; i < battingTeamPlayer.length; i++) {
-                        if (id == Integer.parseInt(battingTeamPlayer[i]) && realm.where(Player.class).equalTo("pID", id).findFirst().getRecentBatingProfile().getCurrentStatus() != CommanData.StatusFree) {
+                    for (int i = 0; i < battingTeamPlayers.size(); i++) {
+                        if (id == battingTeamPlayers.get(i).getpID() && realm.where(Player.class).equalTo("pID", id).findFirst().getRecentBatingProfile().getCurrentStatus() != CommanData.StatusFree) {
                             eligible = false;
                             Toast.makeText(getActivity(), getString(R.string.player_already_batted), Toast.LENGTH_SHORT).show();
                             //Toast.makeText(getActivity(), "Player already batted/batting", Toast.LENGTH_SHORT).show();
                         }
                     }
                     if (bowlingTeamPlayers!=null && !bowlingTeamPlayers.equals("")) {
-                        String bowlingTeamPlayer[] = matchDetails.getBowlingTeamPlayer().split(",");
-                        for (int i = 0; i < bowlingTeamPlayer.length; i++) {
-                            if (id == Integer.parseInt(bowlingTeamPlayer[i])&& realm.where(Player.class).equalTo("pID", id).findFirst().getRecentBowlingProfile().getCurrentBowlerStatus() != CommanData.StatusFree) {
+                     //   String bowlingTeamPlayer[] = matchDetails.getBowlingTeamPlayer().split(",");
+                        for (int i = 0; i < bowlingTeamPlayers.size(); i++) {
+                            if (id == bowlingTeamPlayers.get(i).getpID()&& realm.where(Player.class).equalTo("pID", id).findFirst().getRecentBowlingProfile().getCurrentBowlerStatus() != CommanData.StatusFree) {
                                 eligible = false;
                                 Toast.makeText(getActivity(), "Player in oponent team", Toast.LENGTH_SHORT).show();
                             }
@@ -269,9 +270,9 @@ public class SelectPlayerDialog extends DialogFragment {
             } else {
                 if (battingTeamPlayers != null && !battingTeamPlayers.equals("")) {
                     System.out.println("_________________dd3" + matchDetails.getBattingTeamPlayer());
-                    String battingTeamPlayer[] = matchDetails.getBattingTeamPlayer().split(",");
-                    for (int i = 0; i < battingTeamPlayer.length; i++) {
-                        if (id == Integer.parseInt(battingTeamPlayer[i])) {
+                   // String battingTeamPlayer[] = matchDetails.getBattingTeamPlayer().split(",");
+                    for (int i = 0; i < battingTeamPlayers.size(); i++) {
+                        if (id == battingTeamPlayers.get(i).getpID()) {
                             eligible = false;
                             Toast.makeText(getActivity(), "Player in oponent team___away", Toast.LENGTH_SHORT).show();
                         }

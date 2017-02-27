@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import io.realm.RealmList;
 import realmstudy.data.SessionSave;
 import realmstudy.MainFragmentActivity;
 import realmstudy.R;
@@ -29,7 +30,7 @@ public class TeamADetails extends Fragment {
     PlayerListAdapter adapter;
     Realm realm;
     int aa;
-    String ss[];
+    RealmList<Player> ss;
     Context c;
 
     @Nullable
@@ -56,20 +57,20 @@ public class TeamADetails extends Fragment {
         aa = (int) getArguments().get("team");
 
         if (aa == 0)
-            ss = md.getHomeTeamPlayersArray();
+            ss = md.getHomeTeamPlayers();
 
         else
-            ss = md.getAwayTeamPlayersArray();
+            ss = md.getAwayTeamPlayers();
 
         System.out.println("_________mdd" + matchId + "___" + ss + "____" + aa + "____" + md.getHomeTeamPlayers().toString() + "__");
         if (ss != null) {
-            Integer home[] = new Integer[ss.length];
-            for (int i = 0; i < ss.length; i++) {
-                home[i] = (Integer.parseInt(ss[i]));
-            }
+            //nteger home[] = new Integer[ss.length];
+//            for (int i = 0; i < ss.length; i++) {
+//                home[i] = (Integer.parseInt(ss[i]));
+//            }
 
             if (c != null) {
-                adapter = new PlayerListAdapter((MainFragmentActivity) c, realm.where(Player.class).in("pID", home).findAll());
+                adapter = new PlayerListAdapter((MainFragmentActivity) c, realm.where(Player.class).in("pID", ss.toArray(new String[ss.size()])).findAll());
                 list_view.setAdapter(adapter);
                 System.out.println("____________notifiedsss");
             } else

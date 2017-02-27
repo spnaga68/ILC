@@ -1,5 +1,6 @@
 package realmstudy.data.RealmObjectData;
 
+import io.realm.RealmList;
 import io.realm.RealmObject;
 
 /**
@@ -112,23 +113,21 @@ public class MatchDetails extends RealmObject {
      */
     public Player addPlayertoString(int tochange, Player p) {
 
-        String Addto = null;
+        RealmList<Player> Addto = null;
         if (tochange == 0)
             Addto = homeTeamPlayers;
         else
             Addto = awayTeamPlayers;
         if (Addto != null) {
-            if (Addto.contains(",")) {
-                String playerArray[] = Addto.split(",");
-                for (int i = 0; i < playerArray.length; i++)
-                    if (p.getpID() == Integer.parseInt(playerArray[i]))
+              //  String playerArray[] = Addto.split(",");
+                for (int i = 0; i < Addto.size(); i++)
+                    if (p.getpID() == Addto.get(i).getpID())
                         return null;
-            } else if (p.getpID() == Integer.parseInt(Addto))
-                return null;
+
             else
-                Addto += "," + (p.getpID());
+                Addto.add(p);
         } else
-            Addto = String.valueOf(p.getpID());
+            Addto.add(p);
 
         if (tochange == 0)
             homeTeamPlayers = Addto;
@@ -138,38 +137,33 @@ public class MatchDetails extends RealmObject {
     }
 
     public int totalHomeplayer() {
-        return homeTeamPlayers.split(",").length;
+        return homeTeamPlayers.size();
     }
 
     public int totalAwayplayer() {
-        return awayTeamPlayers.split(",").length;
+        return awayTeamPlayers.size();
     }
 
-    public String getHomeTeamPlayers() {
+    public RealmList<Player> getHomeTeamPlayers() {
         return homeTeamPlayers;
     }
 
-    public String[] getHomeTeamPlayersArray() {
-        String[] s;
-        if (homeTeamPlayers.equals("")) {
-            s = null;
-        } else {
-            s = homeTeamPlayers.split(",");
-        }
-        return s;
-    }
+//    public RealmList<Player> getHomeTeamPlayersArray() {
+//
+//        return homeTeamPlayers;
+//    }
+//
+//    public RealmList<Player> getAwayTeamPlayersArray() {
+//        String[] s;
+//        if (awayTeamPlayers.equals("")) {
+//            s = null;
+//        } else {
+//            s = awayTeamPlayers.split(",");
+//        }
+//        return s;
+//    }
 
-    public String[] getAwayTeamPlayersArray() {
-        String[] s;
-        if (awayTeamPlayers.equals("")) {
-            s = null;
-        } else {
-            s = awayTeamPlayers.split(",");
-        }
-        return s;
-    }
-
-    public String getAwayTeamPlayers() {
+    public RealmList<Player> getAwayTeamPlayers() {
         return awayTeamPlayers;
     }
 
@@ -257,14 +251,14 @@ public class MatchDetails extends RealmObject {
     }
 
 
-    public String getBattingTeamPlayer() {
+    public RealmList<Player> getBattingTeamPlayer() {
         if (isHomeTeamBatting())
             return getHomeTeamPlayers();
         else
             return getAwayTeamPlayers();
     }
 
-    public String getBowlingTeamPlayer() {
+    public RealmList<Player> getBowlingTeamPlayer() {
         if (isHomeTeamBatting())
             return getAwayTeamPlayers();
         else
@@ -292,8 +286,8 @@ public class MatchDetails extends RealmObject {
 
 
     private boolean homeTeamBatting;
-    private String homeTeamPlayers;
-    private String awayTeamPlayers;
+    private RealmList<Player> homeTeamPlayers;
+    private RealmList<Player> awayTeamPlayers;
 
     public String getPlayerWhoLoseWicket() {
         return playerWhoLoseWicket;
@@ -313,12 +307,12 @@ public class MatchDetails extends RealmObject {
         this.matchStatus = matchStatus;
     }
 
-    public void setAwayTeamPlayers(String awayTeamPlayers) {
-        this.awayTeamPlayers = awayTeamPlayers;
+    public void setAwayTeamPlayers(Player awayTeamPlayers) {
+        this.awayTeamPlayers.add(awayTeamPlayers);
     }
 
-    public void setHomeTeamPlayers(String homeTeamPlayers) {
-        this.homeTeamPlayers = homeTeamPlayers;
+    public void setHomeTeamPlayers(Player homeTeamPlayers) {
+        this.homeTeamPlayers.add(homeTeamPlayers);
     }
 
     public void setHomeTeamBatting(boolean homeTeamBatting) {

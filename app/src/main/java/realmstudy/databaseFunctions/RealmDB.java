@@ -237,12 +237,12 @@ public class RealmDB {
 
         if (ishomeTeam) {
             playerExtra = matchDetails.getTotalPlayers() > matchDetails.totalHomeplayer();
-            playerInOpponent = isPlayerInOppenant(matchDetails.getAwayTeamPlayersArray(), ph_no, c, realm);
-            isPlayerAlreadyAdded = isPlayerAlreadyAdded(matchDetails.getHomeTeamPlayersArray(), ph_no, c, realm);
+            playerInOpponent = isPlayerInOppenant(matchDetails.getAwayTeamPlayers().toArray(new String[matchDetails.getAwayTeamPlayers().size()]), ph_no, c, realm);
+            isPlayerAlreadyAdded = isPlayerAlreadyAdded(matchDetails.getHomeTeamPlayers().toArray(new String[matchDetails.getHomeTeamPlayers().size()]), ph_no, c, realm);
         } else {
             playerExtra = matchDetails.getTotalPlayers() > matchDetails.totalAwayplayer();
-            playerInOpponent = isPlayerInOppenant(matchDetails.getHomeTeamPlayersArray(), ph_no, c, realm);
-            isPlayerAlreadyAdded = isPlayerAlreadyAdded(matchDetails.getAwayTeamPlayersArray(), ph_no, c, realm);
+            playerInOpponent = isPlayerInOppenant(matchDetails.getHomeTeamPlayers().toArray(new String[matchDetails.getHomeTeamPlayers().size()]), ph_no, c, realm);
+            isPlayerAlreadyAdded = isPlayerAlreadyAdded(matchDetails.getAwayTeamPlayers().toArray(new String[matchDetails.getAwayTeamPlayers().size()]), ph_no, c, realm);
         }
         if (!isPlayerAlreadyAdded)
             if (!playerInOpponent)
