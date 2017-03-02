@@ -87,54 +87,89 @@ public class MatchDetails extends RealmObject {
 //            homeTeamPlayers += "," + (p.getpID());
 //        else
 //            homeTeamPlayers = String.valueOf(p.getpID());
-        addPlayertoString(0, p);
-        getHomeTeam().addPlayer(p);
+
+
+        if (homeTeamPlayers != null) {
+            //  String playerArray[] = Addto.split(",");
+            for (int i = 0; i < homeTeamPlayers.size(); i++)
+                if (p.getpID() == homeTeamPlayers.get(i).getpID())
+                    return p;
+            for (int i = 0; i < awayTeamPlayers.size(); i++)
+                if (p.getpID() == awayTeamPlayers.get(i).getpID())
+                    return null;
+
+
+            homeTeamPlayers.add(p);
+        }
+
+
+        // addPlayertoTeam(0, p);
+        //getHomeTeam().addPlayer(p);
         return p;
     }
+
+
+
 
     public Player addAwayPlayer(Player p) {
 //        if (!awayTeamPlayers.trim().equals(""))
 //            awayTeamPlayers += "," + (p.getpID());
 //        else
 //            awayTeamPlayers = String.valueOf(p.getpID());
-        addPlayertoString(1, p);
-        getAwayTeam().addPlayer(p);
+
+
+        if (awayTeamPlayers != null) {
+            //  String playerArray[] = Addto.split(",");
+            for (int i = 0; i < homeTeamPlayers.size(); i++)
+                if (p.getpID() == homeTeamPlayers.get(i).getpID())
+                    return null;
+            for (int i = 0; i < awayTeamPlayers.size(); i++)
+                if (p.getpID() == awayTeamPlayers.get(i).getpID())
+                    return p;
+
+
+            awayTeamPlayers.add(p);
+        }
+
+
+        // addPlayertoTeam(1, p);
+        // getAwayTeam().addPlayer(p);
 
 
         return p;
     }
 
-    /**
-     * To add player id to string
-     *
-     * @param tochange 0-hometeam,1-awayteam
-     * @param p-player
-     * @return same player
-     */
-    public Player addPlayertoString(int tochange, Player p) {
-
-        RealmList<Player> Addto = null;
-        if (tochange == 0)
-            Addto = homeTeamPlayers;
-        else
-            Addto = awayTeamPlayers;
-        if (Addto != null) {
-              //  String playerArray[] = Addto.split(",");
-                for (int i = 0; i < Addto.size(); i++)
-                    if (p.getpID() == Addto.get(i).getpID())
-                        return null;
-
-            else
-                Addto.add(p);
-        } else
-            Addto.add(p);
-
-        if (tochange == 0)
-            homeTeamPlayers = Addto;
-        else
-            awayTeamPlayers = Addto;
-        return p;
-    }
+//    /**
+//     * To add player id to string
+//     *
+//     * @param tochange 0-hometeam,1-awayteam
+//     * @param p-player
+//     * @return same player
+//     */
+//    public Player addPlayertoTeam(int tochange, Player p) {
+//
+//        RealmList<Player> Addto = null;
+//        if (tochange == 0)
+//            Addto = homeTeamPlayers;
+//        else
+//            Addto = awayTeamPlayers;
+//        if (Addto != null) {
+//              //  String playerArray[] = Addto.split(",");
+//                for (int i = 0; i < Addto.size(); i++)
+//                    if (p.getpID() == Addto.get(i).getpID())
+//                        return null;
+//
+//            else
+//                Addto.add(p);
+//        } else
+//            Addto.add(p);
+//
+//        if (tochange == 0)
+//            homeTeamPlayers = Addto;
+//        else
+//            awayTeamPlayers = Addto;
+//        return p;
+//    }
 
     public int totalHomeplayer() {
         return homeTeamPlayers.size();
@@ -148,20 +183,27 @@ public class MatchDetails extends RealmObject {
         return homeTeamPlayers;
     }
 
-//    public RealmList<Player> getHomeTeamPlayersArray() {
-//
-//        return homeTeamPlayers;
-//    }
-//
-//    public RealmList<Player> getAwayTeamPlayersArray() {
-//        String[] s;
-//        if (awayTeamPlayers.equals("")) {
-//            s = null;
-//        } else {
-//            s = awayTeamPlayers.split(",");
-//        }
-//        return s;
-//    }
+    public Integer[] getHomeTeamPlayersArray() {
+        if (awayTeamPlayers != null) {
+            Integer[] s = new Integer[homeTeamPlayers.size()];
+            for (int i = 0; i < homeTeamPlayers.size(); i++) {
+                s[i] = homeTeamPlayers.get(i).getpID();
+            }
+            return s;
+        }
+        return null;
+    }
+
+    public Integer[] getAwayTeamPlayersArray() {
+        if (awayTeamPlayers != null) {
+            Integer[] s = new Integer[awayTeamPlayers.size()];
+            for (int i = 0; i < awayTeamPlayers.size(); i++) {
+                s[i] = awayTeamPlayers.get(i).getpID();
+            }
+            return s;
+        }
+        return null;
+    }
 
     public RealmList<Player> getAwayTeamPlayers() {
         return awayTeamPlayers;
@@ -283,11 +325,9 @@ public class MatchDetails extends RealmObject {
     private Team homeTeam, awayTeam, toss;
     private String chooseTo;
     private boolean firstInningsCompleted;
-
-
     private boolean homeTeamBatting;
-    private RealmList<Player> homeTeamPlayers;
-    private RealmList<Player> awayTeamPlayers;
+    private RealmList<Player> homeTeamPlayers = new RealmList<>();
+    private RealmList<Player> awayTeamPlayers = new RealmList<>();
 
     public String getPlayerWhoLoseWicket() {
         return playerWhoLoseWicket;

@@ -8,8 +8,8 @@ import io.realm.annotations.PrimaryKey;
  */
 public class Player extends RealmObject {
     String name;
-    BatingProfile recentBatingProfile;
-    BowlingProfile recentBowlingProfile;
+//    BatingProfile recentBatingProfile;
+//    BowlingProfile recentBowlingProfile;
 
     Wicket outAs;
     @PrimaryKey
@@ -32,23 +32,23 @@ public class Player extends RealmObject {
     }
 
 
-    public BatingProfile getRecentBatingProfile() {
-
-        return recentBatingProfile;
-
-    }
-
-    public void setRecentBatingProfile(BatingProfile recentBatingProfile) {
-        this.recentBatingProfile = recentBatingProfile;
-    }
-
-    public BowlingProfile getRecentBowlingProfile() {
-        return recentBowlingProfile;
-    }
-
-    public void setRecentBowlingProfile(BowlingProfile recentBowlingProfile) {
-        this.recentBowlingProfile = recentBowlingProfile;
-    }
+//    public BatingProfile getRecentBatingProfile() {
+//
+//        return recentBatingProfile;
+//
+//    }
+//
+//    public void setRecentBatingProfile(BatingProfile recentBatingProfile) {
+//        this.recentBatingProfile = recentBatingProfile;
+//    }
+//
+//    public BowlingProfile getRecentBowlingProfile() {
+//        return recentBowlingProfile;
+//    }
+//
+//    public void setRecentBowlingProfile(BowlingProfile recentBowlingProfile) {
+//        this.recentBowlingProfile = recentBowlingProfile;
+//    }
 
 
     public int getpID() {

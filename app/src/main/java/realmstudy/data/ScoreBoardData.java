@@ -1,6 +1,7 @@
 package realmstudy.data;
 
 import io.realm.RealmObject;
+import realmstudy.data.RealmObjectData.Wicket;
 
 /**
  * Created by developer on 9/12/16.
@@ -15,6 +16,49 @@ public class ScoreBoardData  {
     int currentBowlerBalls,currentBowlerRuns;
     int nextBowlerBalls,nextBowlerRuns;
     String StrikerName,NonStrikerName;
+    int nextBatsman=-1;
+    int nextBatsmanRun;
+    int nextBatsmanBalls;
+    Wicket wicket;
+    String CurrentBowlerName,NextBowlerName;
+
+
+    public int getNextBatsman() {
+        return nextBatsman;
+    }
+
+    public void setNextBatsman(int nextBatsman) {
+        this.nextBatsman = nextBatsman;
+    }
+
+    public int getNextBatsmanRun() {
+        return nextBatsmanRun;
+    }
+
+    public void setNextBatsmanRun(int nextBatsmanRun) {
+        this.nextBatsmanRun = nextBatsmanRun;
+    }
+
+    public int getNextBatsmanBalls() {
+        return nextBatsmanBalls;
+    }
+
+    public void setNextBatsmanBalls(int nextBatsmanBalls) {
+        this.nextBatsmanBalls = nextBatsmanBalls;
+    }
+
+
+
+    public Wicket getWicket() {
+        return wicket;
+    }
+
+    public void setWicket(Wicket wicket) {
+        this.wicket = wicket;
+    }
+
+
+
 
     boolean batsmanSwitched;
 
@@ -78,7 +122,7 @@ public class ScoreBoardData  {
         NextBowlerName = nextBowlerName;
     }
 
-    String CurrentBowlerName,NextBowlerName;
+
 
     public boolean isBatsmanSwitched() {
         return batsmanSwitched;

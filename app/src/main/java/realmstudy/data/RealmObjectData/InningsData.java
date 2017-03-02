@@ -1,8 +1,11 @@
 package realmstudy.data.RealmObjectData;
 
 import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
 import io.realm.annotations.Index;
 import io.realm.annotations.PrimaryKey;
+import realmstudy.MainActivity;
+import realmstudy.data.CommanData;
 
 /**
  * Created by developer on 10/12/16.
@@ -10,6 +13,7 @@ import io.realm.annotations.PrimaryKey;
 public class InningsData extends RealmObject {
 
     int run;
+    @Ignore
     boolean legal;
     boolean firstInnings;
 
@@ -17,8 +21,54 @@ public class InningsData extends RealmObject {
     //aggregtion --> InningsData has a relationship with BatingProfile class
     Player striker, nonStriker;
     Player currentBowler, nextBowler;
-    @Index
-    int index;
+    @PrimaryKey
+    String index;
+    boolean boundaries;
+    Wicket wicket;
+    int ballType;
+    public boolean isBoundaries() {
+        return boundaries;
+    }
+
+    public void setBoundaries(boolean boundaries) {
+        this.boundaries = boundaries;
+    }
+
+    public Wicket getWicket() {
+        return wicket;
+    }
+
+    public void setWicket(Wicket wicket) {
+        this.wicket = wicket;
+    }
+
+    public int getBallType() {
+        return ballType;
+    }
+
+    public void setBallType(int ballType) {
+        this.ballType = ballType;
+    }
+
+
+    public void setBallType(CommanData.typeExtraEnum ballType) {
+      //  this.ballType = ballType;
+
+        if(ballType==CommanData.typeExtraEnum.NO_BALL)
+            this.ballType=CommanData.BALL_NO_BALL;
+        else if(ballType==CommanData.typeExtraEnum.WIDE)
+            this.ballType=CommanData.BALL_WIDE;
+        else if(ballType==CommanData.typeExtraEnum.L_BYES)
+            this.ballType=CommanData.BALL_LEGAL_BYES;
+        else if(ballType==CommanData.typeExtraEnum.LEG_BYES)
+            this.ballType=CommanData.BALL_LB;
+        else if(ballType==CommanData.typeExtraEnum.W_BYES)
+            this.ballType=CommanData.BALL_WIDE_BYES;
+        else if(ballType==CommanData.typeExtraEnum.NB_BYES)
+            this.ballType=CommanData.BALL_N0_BALL_BYES;
+        else if(ballType==CommanData.typeExtraEnum.STEP_NO_BALL)
+            this.ballType=CommanData.BALL_NO_OVER_STEP;
+    }
 
     public int getMatch_id() {
         return match_id;
@@ -57,13 +107,21 @@ public class InningsData extends RealmObject {
     }
 
 
-
+    /**
+     * returns index number which is primary key in default it merge with match id
+     * eg: in db: 09_88
+     * returns 09
+     * @return index
+     */
 
     public int getIndex() {
-        return index;
+        if(index.contains("_"))
+        return Integer.parseInt(index.split("_")[0]);
+        else
+            return  -1;
     }
 
-    public void setIndex(int index) {
+    public void setIndex(String index) {
         this.index = index;
     }
 

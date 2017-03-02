@@ -1,6 +1,7 @@
 package realmstudy.data.RealmObjectData;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by developer on 5/1/17.
@@ -13,14 +14,15 @@ public class Wicket extends RealmObject {
     int type;
     Player caughtBy;
     Player runoutBy;
-    int wicket_id;
+    @PrimaryKey
+    String wicket_id;
 
 
-    public int getWicket_id() {
+    public String getWicket_id() {
         return wicket_id;
     }
 
-    public void setWicket_id(int wicket_id) {
+    public void setWicket_id(String wicket_id) {
         this.wicket_id = wicket_id;
     }
 

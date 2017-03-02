@@ -64,6 +64,9 @@
     <string name="player_already_batted">Player already batted/batting</string>
     <string name="enter_team_name">Please enter team name</string>
     <string name="enter_team_nick_name">Please enter team nick name</string>
+    <string name="next_batsman">Next Batsman</string>
+    <string name="no_spell">Bowler can\'t spell</string>
+    <string name="bowled_limited">Bowled limited over</string>
 
 
     <string-array name="run_scored_before_runout">

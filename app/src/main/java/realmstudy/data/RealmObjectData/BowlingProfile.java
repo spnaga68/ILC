@@ -1,5 +1,8 @@
 package realmstudy.data.RealmObjectData;
 
+import android.content.Context;
+
+import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -15,11 +18,14 @@ public class BowlingProfile extends RealmObject {
     int currentBowlerStatus;
     @PrimaryKey
     String bowlingProfileId;
+
     public int getCurrentBowlerStatus() {
         return currentBowlerStatus;
     }
 
     public void setCurrentBowlerStatus(int currentBowlerStatus) {
+
+
         this.currentBowlerStatus = currentBowlerStatus;
     }
 
@@ -43,7 +49,6 @@ public class BowlingProfile extends RealmObject {
     }
 
 
-
     public int getPlayerID() {
         return playerID;
     }
@@ -65,8 +70,18 @@ public class BowlingProfile extends RealmObject {
         return ballsBowled;
     }
 
+    public void setBallsBowled(int ballsBowled, Context c, Realm realm, MatchDetails matchDetails) {
+        if (matchDetails == null)
+            this.ballsBowled = ballsBowled;
+//        else
+//        {
+//            if(ballsBowled==matchDetails.get)
+//        }
+    }
+
     public void setBallsBowled(int ballsBowled) {
         this.ballsBowled = ballsBowled;
+
     }
 
     public int getWide() {

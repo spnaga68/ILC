@@ -134,7 +134,7 @@ public class TossFragment extends Fragment {
                     public void run() {
                         Bundle b = new Bundle();
                         b.putInt("match_id", md.getMatch_id());
-                        TeamDetialsSlide mf = new TeamDetialsSlide();
+                        MainActivity mf = new MainActivity();
                         mf.setArguments(b);
                         getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.mainFrag, mf).commit();
                     }

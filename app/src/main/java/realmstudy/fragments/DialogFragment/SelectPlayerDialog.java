@@ -1,8 +1,12 @@
 package realmstudy.fragments.DialogFragment;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v4.app.ActivityCompat;
@@ -17,6 +21,9 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import io.realm.RealmList;
 import realmstudy.MainFragmentActivity;
@@ -40,26 +47,18 @@ public class SelectPlayerDialog extends DialogFragment {
     private static final int PICK_CONTACT = 420;
     int mNum;
     private boolean ishomeTeam;
+    private boolean toAddForBattingTeam;
 
     Realm realm;
     private MatchDetails matchDetails;
     private String title_txt;
-    //private Player current_bowler;
-//    private DialogInterface dialogInterface;
-//
-//    public SelectPlayerDialog setDialogInterface(DialogInterface dialogInterface, int match_id, boolean ishomeTeam, int current_bowler_id,String title) {
-//        this.dialogInterface = dialogInterface;
-//        return SelectPlayerDialog.newInstance(match_id, ishomeTeam, current_bowler_id,title);
-//    }
+    private Player current_bowler;
 
-    /**
-     * Create a new instance of SelectPlayerDialog, providing "num"
-     * as an argument.
-     */
+
     public static SelectPlayerDialog newInstance(int match_id, boolean ishomeTeam, int current_bowler_id, String title) {
         SelectPlayerDialog f = new SelectPlayerDialog();
 
-        // Supply num input as an argument.
+        // Supply input as an argument.
         Bundle args = new Bundle();
         args.putInt("match_id", match_id);
         args.putBoolean("ishomeTeam", ishomeTeam);
@@ -76,12 +75,14 @@ public class SelectPlayerDialog extends DialogFragment {
         int match_id = getArguments().getInt("match_id");
         ishomeTeam = getArguments().getBoolean("ishomeTeam");
         title_txt = getArguments().getString("title_txt");
+        int cb = getArguments().getInt("current_bowler_id");
+
         Realm.init(getActivity());
         RealmConfiguration config = new RealmConfiguration.Builder()
                 .build();
         realm = Realm.getInstance(config);
         matchDetails = RealmDB.getMatchById(getActivity(), realm, match_id);
-
+        current_bowler = RealmDB.getPlayer(getActivity(), realm, cb);
 
     }
 
@@ -91,6 +92,7 @@ public class SelectPlayerDialog extends DialogFragment {
         View v = inflater.inflate(R.layout.select_player, container, false);
 
         selectPlayerDialog(v, realm, title_txt);
+        setCancelable(false);
         return v;
     }
 
@@ -138,12 +140,34 @@ public class SelectPlayerDialog extends DialogFragment {
         final Spinner player_db_spinner;
         final EditText name;
         final EditText ph_no;
+        RealmList<Player> home_team_players = null;
 
 
-        RealmResults<Player> players = realm.where(Player.class).findAll();
+        if ((matchDetails.isHomeTeamBatting() && ishomeTeam) || (!matchDetails.isHomeTeamBatting() && !ishomeTeam)) {
+            toAddForBattingTeam = true;
+        }
+        RealmResults<Player> otherPlayers = (realm.where(Player.class).findAll());
+        ArrayList<Player> otherPlayer = null;
+        if (otherPlayers != null)
+            otherPlayer = new ArrayList<>(otherPlayers.subList(0, otherPlayers.size()));
+        home_team_players = realm.where(MatchDetails.class).equalTo("match_id", matchDetails.getMatch_id()).findFirst().getHomeTeamPlayers();
+
+        RealmList<Player> away_team_players = realm.where(MatchDetails.class).equalTo("match_id", matchDetails.getMatch_id()).findFirst().getAwayTeamPlayers();
+
+//
+
+        if (ishomeTeam) {
+            //  players = realm.where(MatchDetails.class).equalTo("match_id", matchDetails.getMatch_id()).findFirst().getHomeTeamPlayers();
+
+            otherPlayer.removeAll(away_team_players);
+        } else {
+            otherPlayer.removeAll(home_team_players);
+            //   players = realm.where(MatchDetails.class).equalTo("match_id", matchDetails.getMatch_id()).findFirst().getAwayTeamPlayers();
+        }
+        System.out.println("______________"+home_team_players.size()+"__"+away_team_players.size()+"___"+otherPlayer.size()+"___"+otherPlayers.size());
         ArrayAdapter<Player> adapter;
         adapter = new ArrayAdapter<>(
-                getActivity(), R.layout.player_spinner_item, players);
+                getActivity(), R.layout.player_spinner_item, otherPlayer);
 
 // Set other dialog properties
 
@@ -159,7 +183,7 @@ public class SelectPlayerDialog extends DialogFragment {
         //set value
         title.setText(title_txt);
         player_db_spinner.setAdapter(adapter);
-        if (players.size() <= 0)
+        if (otherPlayer.size() <= 0)
             database_lay.setVisibility(View.GONE);
         from_contacts.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -169,7 +193,7 @@ public class SelectPlayerDialog extends DialogFragment {
 
                     ((MainFragmentActivity) getActivity()).startInstalledAppDetailsActivity(getActivity());
                 } else {
-                    dismiss();
+                    //dismiss();
                     pickFromContacts();
                 }
             }
@@ -211,17 +235,18 @@ public class SelectPlayerDialog extends DialogFragment {
                     if (bwf == null)
                         bwf = RealmDB.createBowlingProfile(getActivity(), realm, dummy.getpID(), matchDetails.getMatch_id());
                     realm.beginTransaction();
-                    dummy.setRecentBatingProfile(bf);
-                    dummy.setRecentBowlingProfile(bwf);
+//                    dummy.setRecentBatingProfile(bf);
+//                    dummy.setRecentBowlingProfile(bwf);
                     if (ishomeTeam)
                         p = matchDetails.addHomePlayer(dummy);
                     else
                         p = matchDetails.addAwayPlayer(dummy);
                     realm.commitTransaction();
+                    System.out.println("_________________dd5.1" + p);
                     if (p == null)
                         ((MainFragmentActivity) getActivity()).messageFromDialog(0, false, String.valueOf(dummy.getpID()), "Success");
                     else
-                        ((MainFragmentActivity) getActivity()).messageFromDialog(0, true, String.valueOf(dummy.getpID()), "Player invalid");
+                        ((MainFragmentActivity) getActivity()).messageFromDialog(CommanData.DIALOG_SELECT_PLAYER, true, String.valueOf(dummy.getpID()), "Player invalid");
                     // dialogInterface.onSuccess("hii", true);
                     dismiss();
 
@@ -240,27 +265,29 @@ public class SelectPlayerDialog extends DialogFragment {
             System.out.println("_________________ss" + matchDetails.getHomeTeam().name);
             System.out.println("_________________dd" + matchDetails.getBattingTeamPlayer() + "000");
             RealmList<Player> battingTeamPlayers = matchDetails.getBattingTeamPlayer();
-            RealmList<Player>bowlingTeamPlayers = matchDetails.getBowlingTeamPlayer();
+            RealmList<Player> bowlingTeamPlayers = matchDetails.getBowlingTeamPlayer();
 
 
-            System.out.println("_________________dd1__" + matchDetails.getBattingTeamPlayer()+"____"+matchDetails.getBowlingTeamPlayer()+"__"+ishomeTeam+"___"+matchDetails.isHomeTeamBatting());
-            if ((matchDetails.isHomeTeamBatting() && ishomeTeam)||(!matchDetails.isHomeTeamBatting() && !ishomeTeam)) {
+            System.out.println("_________________dd1__" + matchDetails.getBattingTeamPlayer() + "____" + matchDetails.getBowlingTeamPlayer() + "__" + ishomeTeam + "___" + matchDetails.isHomeTeamBatting());
+            if ((matchDetails.isHomeTeamBatting() && ishomeTeam) || (!matchDetails.isHomeTeamBatting() && !ishomeTeam)) {
                 System.out.println("_________________dd2" + bowlingTeamPlayers);
                 if (battingTeamPlayers != null && !battingTeamPlayers.equals("")) {
 
-                   // String battingTeamPlayer[] = matchDetails.getBattingTeamPlayer().split(",");
+                    // String battingTeamPlayer[] = matchDetails.getBattingTeamPlayer().split(",");
 
                     for (int i = 0; i < battingTeamPlayers.size(); i++) {
-                        if (id == battingTeamPlayers.get(i).getpID() && realm.where(Player.class).equalTo("pID", id).findFirst().getRecentBatingProfile().getCurrentStatus() != CommanData.StatusFree) {
+                        int batStatus = RealmDB.getBattingProfile(getActivity(), realm, id, matchDetails.getMatch_id()).getCurrentStatus();
+                        System.out.println("_________________dd2" + batStatus);
+                        if (id == battingTeamPlayers.get(i).getpID() && (batStatus == CommanData.StatusOut || batStatus == CommanData.StatusBatting)) {
                             eligible = false;
                             Toast.makeText(getActivity(), getString(R.string.player_already_batted), Toast.LENGTH_SHORT).show();
                             //Toast.makeText(getActivity(), "Player already batted/batting", Toast.LENGTH_SHORT).show();
                         }
                     }
-                    if (bowlingTeamPlayers!=null && !bowlingTeamPlayers.equals("")) {
-                     //   String bowlingTeamPlayer[] = matchDetails.getBowlingTeamPlayer().split(",");
+                    if (bowlingTeamPlayers != null && !bowlingTeamPlayers.equals("")) {
+                        //   String bowlingTeamPlayer[] = matchDetails.getBowlingTeamPlayer().split(",");
                         for (int i = 0; i < bowlingTeamPlayers.size(); i++) {
-                            if (id == bowlingTeamPlayers.get(i).getpID()&& realm.where(Player.class).equalTo("pID", id).findFirst().getRecentBowlingProfile().getCurrentBowlerStatus() != CommanData.StatusFree) {
+                            if (id == bowlingTeamPlayers.get(i).getpID()) {
                                 eligible = false;
                                 Toast.makeText(getActivity(), "Player in oponent team", Toast.LENGTH_SHORT).show();
                             }
@@ -270,11 +297,25 @@ public class SelectPlayerDialog extends DialogFragment {
             } else {
                 if (battingTeamPlayers != null && !battingTeamPlayers.equals("")) {
                     System.out.println("_________________dd3" + matchDetails.getBattingTeamPlayer());
-                   // String battingTeamPlayer[] = matchDetails.getBattingTeamPlayer().split(",");
+                    // String battingTeamPlayer[] = matchDetails.getBattingTeamPlayer().split(",");
                     for (int i = 0; i < battingTeamPlayers.size(); i++) {
                         if (id == battingTeamPlayers.get(i).getpID()) {
                             eligible = false;
                             Toast.makeText(getActivity(), "Player in oponent team___away", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+
+                if (bowlingTeamPlayers != null && !bowlingTeamPlayers.equals("")) {
+                    //   String bowlingTeamPlayer[] = matchDetails.getBowlingTeamPlayer().split(",");
+
+                    for (int i = 0; i < bowlingTeamPlayers.size(); i++) {
+                        if (current_bowler != null && id == current_bowler.getpID()) {
+                            eligible = false;
+                            Toast.makeText(getActivity(), getString(R.string.no_spell), Toast.LENGTH_SHORT).show();
+                        } else if (RealmDB.getBowlingProfile(getActivity(), realm, id, matchDetails.getMatch_id()).getCurrentBowlerStatus() == CommanData.StatusBowled) {
+                            eligible = false;
+                            Toast.makeText(getActivity(), getString(R.string.bowled_limited), Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
@@ -298,4 +339,109 @@ public class SelectPlayerDialog extends DialogFragment {
         return eligible;
     }
 
+
+    @Override
+    public void onActivityResult(int reqCode, int resultCode, Intent data) {
+        super.onActivityResult(reqCode, resultCode, data);
+        String cNumber = "";
+        String name = "";
+        switch (reqCode) {
+            case (PICK_CONTACT):
+                if (resultCode == Activity.RESULT_OK) {
+
+                    Uri contactData = data.getData();
+                    Cursor c = getActivity().getContentResolver().query(contactData, null, null, null, null);
+                    if (c.moveToFirst()) {
+
+
+                        String id = c.getString(c.getColumnIndexOrThrow(ContactsContract.Contacts._ID));
+
+                        String hasPhone = c.getString(c.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
+
+                        if (hasPhone.equalsIgnoreCase("1")) {
+                            Cursor phones = getActivity().getContentResolver().query(
+                                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+                                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + id,
+                                    null, null);
+                            phones.moveToFirst();
+                            cNumber = phones.getString(phones.getColumnIndex("data1"));
+                            System.out.println("number is:" + cNumber);
+                        }
+                        name = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+
+
+                    }
+
+                    if (!name.trim().isEmpty()) {
+//                        realm.beginTransaction();
+//                        Player playerObj = realm.createObject(Player.class);
+//                        playerObj.setpID(realm.where(Player.class).findAll().size());
+//                        playerObj.setName(name);
+//                        playerObj.setPh_no(cNumber);
+//                        realm.commitTransaction();
+                        // RealmDB.AddPlayer(getActivity(), realm, name, cNumber);
+
+                        if (!name.isEmpty()) {
+                            int pID = RealmDB.addNewPlayerToMatch(name, cNumber, getActivity(), realm, matchDetails, ishomeTeam);
+                            if (getDialog() != null && pID != -1 ? true : false)
+                                dismiss();
+
+                            ((MainFragmentActivity) getActivity()).messageFromDialog(CommanData.DIALOG_SELECT_PLAYER, pID != -1 ? true : false, String.valueOf(pID), "success");
+//                            if (assignToPlayer == 5) {
+//                                ArrayList<Player> bowlingTeamPlayers = getBowlingTeamPlayer();
+//                                ArrayAdapter<Player> bowling_team_player_adapter = new ArrayAdapter<>(
+//                                        getActivity(), realmstudy.R.layout.player_spinner_item, bowlingTeamPlayers);
+//                                if (caught_by != null && run_out_by != null) {
+//                                    System.out.println();
+//                                    caught_by.setAdapter(bowling_team_player_adapter);
+//                                    run_out_by.setAdapter(bowling_team_player_adapter);
+//                                    int ids = 0;
+//                                    for (int i = 0; i < bowlingTeamPlayers.size(); i++) {
+//                                        if (bowlingTeamPlayers.get(i).getpID() == id)
+//                                            ids = i;
+//                                    }
+//                                    caught_by.setSelection(ids);
+//                                    run_out_by.setSelection(ids);
+//                                }
+//                            }
+                        }
+
+
+                    }
+                    break;
+                }
+        }
+    }
+
+
+
+
+
+
+
+
+   /* int newPlayerAdded(String name, String ph_no, Dialog dialog) {
+        Player dummy = null;
+        if (isEligible(ph_no,ishomeTeam)) {
+
+            dummy = RealmDB.AddPlayer(getActivity(), realm, name, ph_no);
+            BatingProfile bf = RealmDB.createBattingProfile(getActivity(), realm, dummy.getpID(), matchDetails.getMatch_id());
+            BowlingProfile bwf = RealmDB.createBowlingProfile(getActivity(), realm, dummy.getpID(), matchDetails.getMatch_id());
+            realm.beginTransaction();
+            if (matchDetails.isHomeTeamBatting())
+                matchDetails.addHomePlayer(dummy);
+            else
+                matchDetails.addAwayPlayer(dummy);
+            bf.setCurrentStatus(CommanData.StatusBatting);
+            // striker.setRecentBatingProfile(bf);
+            realm.commitTransaction();
+        }
+
+
+        if (dummy != null)
+            return dummy.getpID();
+        else
+            return -1;
+    }
+*/
 }
