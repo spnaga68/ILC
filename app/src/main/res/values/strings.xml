@@ -67,7 +67,7 @@
     <string name="next_batsman">Next Batsman</string>
     <string name="no_spell">Bowler can\'t spell</string>
     <string name="bowled_limited">Bowled limited over</string>
-
+<string name="player_in_striker_end">Player in striker end</string>
 
     <string-array name="run_scored_before_runout">
         <item>0</item>

@@ -2,6 +2,7 @@ package realmstudy.data.RealmObjectData;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
+import realmstudy.data.CommanData;
 
 /**
  * Created by developer on 5/1/17.
@@ -16,6 +17,15 @@ public class Wicket extends RealmObject {
     Player runoutBy;
     @PrimaryKey
     String wicket_id;
+    boolean isStrikerOut=true;
+    public void setStrikerOut(boolean strikerOut) {
+        isStrikerOut = strikerOut;
+    }
+
+    public boolean isStrikerOut() {
+        return isStrikerOut;
+    }
+
 
 
     public String getWicket_id() {
@@ -84,4 +94,5 @@ public class Wicket extends RealmObject {
     public void setRunoutBy(Player runoutBy) {
         this.runoutBy = runoutBy;
     }
+
 }

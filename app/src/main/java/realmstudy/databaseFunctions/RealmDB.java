@@ -42,6 +42,11 @@ public class RealmDB {
         return b;
     }
 
+
+    public static int noOfWicket(Context c,Realm realm,int mId,boolean isFirstInnings){
+      return realm.where(InningsData.class).equalTo("match_id",mId).equalTo("firstInnings",isFirstInnings).isNotNull("wicket").findAll().size();
+    }
+
     public static BatingProfile createBattingProfile(Context c, Realm realm, int Pid, int mId) {
         BatingProfile b = null;
 //        if (realm.where(BatingProfile.class).findAll().size() > 0)
@@ -73,7 +78,7 @@ public class RealmDB {
 
     public static InningsData getInningsData(Context c, Realm realm, int index, int mid,boolean isfirstInnings) {
 
-        InningsData data = realm.where(InningsData.class).equalTo("index", index + "_" + mid).equalTo("firstInnings",isfirstInnings).findFirst();
+        InningsData data = realm.where(InningsData.class).equalTo("index", index + "_" + mid+"_"+(RealmDB.getMatchById(c,realm,mid).isFirstInningsCompleted()?"S":"F")).findFirst();
         if (data == null) {
             realm.beginTransaction();
             data = realm.createObject(InningsData.class, index + "_" + mid+"_"+(RealmDB.getMatchById(c,realm,mid).isFirstInningsCompleted()?"S":"F"));
@@ -276,7 +281,7 @@ public class RealmDB {
             playerExtra = matchDetails.getTotalPlayers() > matchDetails.totalAwayplayer();
             playerInOpponent = isPlayerInOppenant(matchDetails.getHomeTeamPlayers(), ph_no, c, realm);
             isPlayerAlreadyAdded = isPlayerAlreadyAdded(matchDetails.getAwayTeamPlayers(), ph_no, c, realm);
-        }
+      }
         System.out.println("_____________JJBcccc" + isPlayerAlreadyAdded + "__" + playerInOpponent + "__" + playerExtra);
         if (!isPlayerAlreadyAdded)
             if (!playerInOpponent)

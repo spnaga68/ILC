@@ -164,7 +164,7 @@ public class SelectPlayerDialog extends DialogFragment {
             otherPlayer.removeAll(home_team_players);
             //   players = realm.where(MatchDetails.class).equalTo("match_id", matchDetails.getMatch_id()).findFirst().getAwayTeamPlayers();
         }
-        System.out.println("______________"+home_team_players.size()+"__"+away_team_players.size()+"___"+otherPlayer.size()+"___"+otherPlayers.size());
+        System.out.println("______________" + home_team_players.size() + "__" + away_team_players.size() + "___" + otherPlayer.size() + "___" + otherPlayers.size());
         ArrayAdapter<Player> adapter;
         adapter = new ArrayAdapter<>(
                 getActivity(), R.layout.player_spinner_item, otherPlayer);
@@ -208,9 +208,10 @@ public class SelectPlayerDialog extends DialogFragment {
                 if (!name.getText().toString().isEmpty()) {
                     // addPlayerToMatch(name.getText().toString(), ph_no.getText().toString());
                     int pID = RealmDB.addNewPlayerToMatch(name.getText().toString(), ph_no.getText().toString(), getActivity(), realm, matchDetails, ishomeTeam);
-                    if (getDialog() != null)
+                    if (pID != -1 && getDialog() != null) {
                         dismiss();
-                    ((MainFragmentActivity) getActivity()).messageFromDialog(0, true, String.valueOf(pID), "success");
+                        ((MainFragmentActivity) getActivity()).messageFromDialog(CommanData.DIALOG_SELECT_PLAYER, true, String.valueOf(pID), "success");
+                    }
                 }
             }
         });
@@ -244,7 +245,7 @@ public class SelectPlayerDialog extends DialogFragment {
                     realm.commitTransaction();
                     System.out.println("_________________dd5.1" + p);
                     if (p == null)
-                        ((MainFragmentActivity) getActivity()).messageFromDialog(0, false, String.valueOf(dummy.getpID()), "Success");
+                        ((MainFragmentActivity) getActivity()).messageFromDialog(CommanData.DIALOG_SELECT_PLAYER, false, String.valueOf(dummy.getpID()), "Success");
                     else
                         ((MainFragmentActivity) getActivity()).messageFromDialog(CommanData.DIALOG_SELECT_PLAYER, true, String.valueOf(dummy.getpID()), "Player invalid");
                     // dialogInterface.onSuccess("hii", true);

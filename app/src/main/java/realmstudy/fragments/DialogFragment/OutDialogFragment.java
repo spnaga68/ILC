@@ -308,10 +308,11 @@ public class OutDialogFragment extends DialogFragment {
                         break;
 
                 }
-                if (w != null)
+                if (w != null){
                     dismiss();
                // System.out.println("_____Out"+CommanData.DIALOG_OUT+"__"+w+"__");
                 ((MsgFromDialog) getActivity()).messageFromDialog(CommanData.DIALOG_OUT, w != null, w, "");
+                }
             }
 
 

@@ -118,6 +118,31 @@
 
 
                 android:visibility="gone" />
+
+
+            <ImageButton
+                android:id="@+id/undo"
+                style="@style/Widget.AppCompat.ActionButton"
+                android:layout_width="?attr/actionBarSize"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_gravity="end"
+                android:layout_marginRight="?attr/actionBarSize"
+                android:scaleType="centerInside"
+                android:src="@android:drawable/ic_media_previous"
+                android:visibility="visible" />
+
+            <ImageButton
+                android:id="@+id/redo"
+                style="@style/Widget.AppCompat.ActionButton"
+                android:layout_width="?attr/actionBarSize"
+                android:layout_height="?attr/actionBarSize"
+
+                android:layout_gravity="end"
+                android:scaleType="centerInside"
+                android:src="@android:drawable/ic_media_next"
+                android:visibility="visible" />
+
+
         </FrameLayout>
     </FrameLayout>
 
