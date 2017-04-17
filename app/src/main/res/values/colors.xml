@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-   <!-- <color name="colorPrimary">#795548</color>
-    <color name="colorPrimaryDark">#4E342E</color>
-    <color name="colorAccent">#795548</color>
-    team color 635540
-    -->
+    <!-- <color name="colorPrimary">#795548</color>
+     <color name="colorPrimaryDark">#4E342E</color>
+     <color name="colorAccent">#795548</color>
+     team color 635540
+     -->
 
     <color name="colorPrimary">#F57C00</color>
     <color name="colorPrimaryDark">#E65100</color>
-    <color name="colorAccent">#FF6D00</color>
+    <color name="colorAccent">#2b333b</color>
 
 
     <color name="semi_transperant">#66795548</color>
@@ -22,12 +22,13 @@
 
 
     <color name="blue">#f5f5f0</color>
-    <color name="clicked">#FFAFAEAE</color>
+    <color name="red_M">#FF4433</color>
+    <color name="green_M">#43A047</color>
+    <color name="yellow_M">#FF8F00</color>
+
+
     <color name="shade">#6c6c6c</color>
 
-    <color name="button">#FFAFAEAE</color>
-
-    <color name="text">#FFAFAEAE</color>
     <color name="head">#F5F5F5</color>
 
 
@@ -40,5 +41,7 @@
     <color name="back_ground_dark">#FFF</color>
     <color name="button_text_color">#fff</color>
     <color name="edit_text_color">#212121</color>
-    <color name="appbg">#fff</color>
+    <color name="edit_hint_color">#E0E0E0</color>
+    <color name="appbg">#ffffff</color>
+    <color name="hint_color">#6c6c6c</color>
 </resources>

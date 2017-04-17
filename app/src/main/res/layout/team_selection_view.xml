@@ -20,6 +20,7 @@
             android:paddingRight="10dp"
             android:singleLine="true"
             android:ellipsize="marquee"
+            android:background="@color/appbg"
             android:fadingEdge="horizontal"
             android:marqueeRepeatLimit="marquee_forever"
             android:scrollHorizontally="true"

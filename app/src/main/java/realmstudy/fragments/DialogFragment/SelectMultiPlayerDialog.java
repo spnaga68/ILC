@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -18,6 +19,7 @@ import io.realm.RealmResults;
 import realmstudy.MainFragmentActivity;
 import realmstudy.R;
 import realmstudy.adapter.MultiplayerListAdapter;
+import realmstudy.data.CommanData;
 import realmstudy.data.RealmObjectData.MatchDetails;
 import realmstudy.data.RealmObjectData.Player;
 import realmstudy.databaseFunctions.RealmDB;
@@ -32,6 +34,8 @@ public class SelectMultiPlayerDialog extends DialogFragment {
     private Button butConfirmTime;
     private MultiplayerListAdapter multiplayerListAdapter;
     TextView header_txt;
+    private int match_id;
+    private LinearLayout overall_lay;
 
     public static SelectMultiPlayerDialog newInstance(int match_id, boolean ishomeTeam) {
         SelectMultiPlayerDialog f = new SelectMultiPlayerDialog();
@@ -49,13 +53,16 @@ public class SelectMultiPlayerDialog extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        int match_id = getArguments().getInt("match_id");
+        match_id = getArguments().getInt("match_id");
         ishomeTeam = getArguments().getBoolean("ishomeTeam");
+        System.out.println("______________cccc1");
+
         Realm.init(getActivity());
         RealmConfiguration config = new RealmConfiguration.Builder()
                 .build();
         realm = Realm.getInstance(config);
-        matchDetails = RealmDB.getMatchById(getActivity(), realm, match_id);
+        if (match_id != -1)
+            matchDetails = RealmDB.getMatchById(getActivity(), realm, match_id);
     }
 
     @Nullable
@@ -66,6 +73,8 @@ public class SelectMultiPlayerDialog extends DialogFragment {
         butConfirmTime = (Button) v.findViewById(R.id.butConfirmTime);
         header_txt = (TextView) v.findViewById(R.id.header_txt);
         header_txt.setText(getString(R.string.add_player));
+
+
         RealmResults<Player> playerList = RealmDB.getAllPlayer(realm);
         multiplayerListAdapter = new MultiplayerListAdapter(getActivity(), playerList);
         lv.setAdapter(multiplayerListAdapter);
@@ -74,17 +83,16 @@ public class SelectMultiPlayerDialog extends DialogFragment {
             @Override
             public void onClick(View view) {
                 ArrayList<Integer> data = multiplayerListAdapter.selectedPlayersID();
+                String ss = "";
                 if (data.size() > 0)
                     System.out.println("____________" + data.toString());
                 for (int i = 0; i < data.size(); i++) {
-//                    Player p = RealmDB.getPlayer(getActivity(), realm, data.get(i));
-//                    String name = p.getName();
-//                    String ph_no = p.getPh_no();
-//                    System.out.println("___________T" + name + "___" + ph_no + "___" + matchDetails.getMatch_id() + "___" + ishomeTeam);
-                    RealmDB.addPlayerToMatch(data.get(i), getActivity(), realm, matchDetails, ishomeTeam);
+                    ss = ss+RealmDB.getPlayer(realm, data.get(i)).getName() + " , ";
+                    if (match_id != -1)
+                        RealmDB.addPlayerToMatch(data.get(i), getActivity(), realm, matchDetails, ishomeTeam);
 
                 }
-                ((MainFragmentActivity) getActivity()).msg("Success");
+                ((MainFragmentActivity) getActivity()).messageFromDialog(CommanData.DIALOG_SELECT_MULTI_PLAYER, true, data, "sep_commo");
                 dismiss();
             }
         });

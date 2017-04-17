@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/appbg"
     android:orientation="vertical">
 
     <LinearLayout
@@ -21,10 +23,11 @@
             android:singleLine="true"
             android:visibility="gone"
             android:ellipsize="marquee"
+            android:background="@color/appbg"
             android:fadingEdge="horizontal"
             android:marqueeRepeatLimit="marquee_forever"
             android:scrollHorizontally="true"
-            android:text="HomeTeam Vs AwayTeam" />
+            android:text="HomeTeam Vs d" />
 
 
         <FrameLayout

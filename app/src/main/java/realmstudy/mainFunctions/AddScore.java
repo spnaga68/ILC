@@ -67,7 +67,7 @@ public class AddScore  {
 //
 //        //    score_data.setTotalRuns(total_run);
 //        //striker.setBallFaced(legal ? striker.getBallFaced() + 1 : striker.getBallFaced());
-//        inningsData.setLegal(legal);
+//        inningsData.setNormalDelivery(legal);
 //        inningsData.setRun(runs);
 //        inningsData.setScoreBoardData(CommanData.toString(score_data));
 //        inningsData.setStriker(striker);

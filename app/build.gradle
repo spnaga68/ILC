@@ -1,6 +1,9 @@
 apply plugin: 'com.android.application'
 apply plugin: 'realm-android'
+ext {
 
+    DAGGER = "2.7"
+}
 android {
     compileSdkVersion 24
     buildToolsVersion "25.0.0"
@@ -10,7 +13,7 @@ android {
         }
     }
     defaultConfig {
-        applicationId "com.example.developer.realmstudy"
+        applicationId "pasu.ilc"
         minSdkVersion 16
         targetSdkVersion 24
         versionCode 1
@@ -25,7 +28,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    // compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:24.2.1'
     compile 'com.android.support:cardview-v7:24.0.0'
@@ -34,12 +37,12 @@ dependencies {
     compile 'com.facebook.stetho:stetho-okhttp3:1.4.1'
     compile 'com.squareup.retrofit2:retrofit:2.1.0'
     compile 'com.squareup.okhttp3:logging-interceptor:3.3.1'
-    compile 'com.squareup.retrofit2:converter-gson:2.1.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.2.0'
     compile 'com.uphyca:stetho_realm:2.0.0'
     compile 'io.realm:android-adapters:1.4.0'
     compile 'com.android.support:support-v4:24.0.0'
     compile "com.android.support:recyclerview-v7:24.0.0"
-
-
+    compile 'com.google.dagger:dagger:2.7'
+    apt "com.google.dagger:dagger-compiler:2.7"
 
 }

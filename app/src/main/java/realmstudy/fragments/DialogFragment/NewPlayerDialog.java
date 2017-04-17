@@ -14,10 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-
-import java.util.ArrayList;
 
 import realmstudy.MainFragmentActivity;
 import realmstudy.R;
@@ -49,12 +46,10 @@ public class NewPlayerDialog extends DialogFragment {
      */
     public static NewPlayerDialog newInstance() {
         NewPlayerDialog f = new NewPlayerDialog();
-
         // Supply num input as an argument.
         Bundle args = new Bundle();
         args.putInt("num", 1);
         f.setArguments(args);
-
         return f;
     }
 
@@ -69,7 +64,7 @@ public class NewPlayerDialog extends DialogFragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.create_new_player, container, false);
         name = (EditText) v.findViewById(R.id.name);
-        ph_no = (EditText) v.findViewById(R.id.ph_no);
+        ph_no = (EditText) v.findViewById(R.id.time);
         ph_no.setHint(R.string.ph_no);
 
         v.findViewById(R.id.from_contacts).setOnClickListener(new View.OnClickListener() {

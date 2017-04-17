@@ -18,7 +18,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import javax.inject.Inject;
+
 import realmstudy.MainFragmentActivity;
+import realmstudy.MyApplication;
 import realmstudy.R;
 import realmstudy.adapter.PlayerListAdapter;
 import realmstudy.data.RealmObjectData.Player;
@@ -39,17 +42,18 @@ public class PlayerListFragment extends Fragment implements DialogInterface{
     private android.support.design.widget.FloatingActionButton add;
     private android.support.design.widget.FloatingActionButton add_from_contacts;
     PlayerListAdapter adapter;
-    private Realm realm;
+    @Inject
+     Realm realm;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.player_list_view, container, false);
+        ((MyApplication)getActivity().getApplication()).getComponent().inject(this);
         list_view = (RecyclerView) v.findViewById(R.id.list_view);
         add = (android.support.design.widget.FloatingActionButton) v.findViewById(R.id.add);
         add_from_contacts = (android.support.design.widget.FloatingActionButton) v.findViewById(R.id.add_from_contacts);
-        realm = ((MainFragmentActivity) getActivity()).getRealm();
-        adapter = new PlayerListAdapter((MainFragmentActivity) getActivity(), realm.where(Player.class).findAll());
+        adapter = new PlayerListAdapter(getActivity(), realm.where(Player.class).findAll());
         list_view.setAdapter(adapter);
         list_view.setLayoutManager(new LinearLayoutManager(getActivity()));
         add.setOnClickListener(new View.OnClickListener() {

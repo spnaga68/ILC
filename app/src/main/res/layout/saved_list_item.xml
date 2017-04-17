@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -42,39 +41,42 @@
             android:text="Vs"
             android:textSize="@dimen/header_text" />
 
-        <realmstudy.lib.customViews.SemiLargeTextView
-            android:id="@+id/vs"
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
+            android:layout_centerInParent="true"
             android:layout_toLeftOf="@+id/away_team_image"
-            android:layout_toRightOf="@+id/home_team_image"
-            android:gravity="center"
-            android:text="Vs"
-            android:textColor="@color/colorAccent"
-            android:textSize="@dimen/header_text" />
+            android:layout_toRightOf="@+id/home_team_image">
 
-        <TextView
-            android:id="@+id/venue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/vs"
-            android:layout_centerHorizontal="true"
-            android:layout_toLeftOf="@+id/away_team_image"
-            android:layout_toRightOf="@+id/home_team_image"
-            android:gravity="center"
-            android:text="kodisiya"
-            android:textSize="@dimen/header_text" />
+            <TextView
+                android:id="@+id/venue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:text="kodisiya"
+                android:textSize="@dimen/header_text" />
 
-        <TextView
-            android:id="@+id/ph_no"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/venue"
-            android:layout_toLeftOf="@+id/away_team_image"
-            android:layout_toRightOf="@+id/home_team_image"
-            android:gravity="center"
-            android:text="29/09/1993 05:30:00" />
+            <TextView
+                android:id="@+id/time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/venue"
+                android:layout_centerHorizontal="true"
+                android:gravity="center"
+                android:text="29/09/1993 05:30:00" />
+
+            <realmstudy.lib.customViews.NormalTextView
+                android:id="@+id/status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/time"
+                android:layout_centerHorizontal="true"
+                android:gravity="center"
+                android:text="completed"
+                android:textColor="@color/colorAccent"
+                android:textSize="@dimen/header_text" />
+        </RelativeLayout>
 
         <ImageView
             android:layout_width="wrap_content"

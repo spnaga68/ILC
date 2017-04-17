@@ -1,7 +1,11 @@
 package realmstudy.data.RealmObjectData;
 
+import android.content.Context;
+
+import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by developer on 2/1/17.
@@ -15,11 +19,11 @@ public class MatchDetails extends RealmObject {
         this.match_id = match_id;
     }
 
-    public String getTime() {
+    public Long getTime() {
         return time;
     }
 
-    public void setTime(String time) {
+    public void setTime(Long time) {
         this.time = time;
     }
 
@@ -108,7 +112,26 @@ public class MatchDetails extends RealmObject {
         return p;
     }
 
+    public Player addUnAssignedPlayer(Player p) {
 
+
+        if (notAssignedPlayers != null) {
+            //  String playerArray[] = Addto.split(",");
+            for (int i = 0; i < notAssignedPlayers.size(); i++)
+                if (p.getpID() == notAssignedPlayers.get(i).getpID())
+                    return p;
+
+            notAssignedPlayers.add(p);
+        }
+
+        return p;
+    }
+
+
+    public RealmList<Player> getUnAssignedPlayer(Player p) {
+//
+        return notAssignedPlayers;
+    }
 
 
     public Player addAwayPlayer(Player p) {
@@ -318,16 +341,25 @@ public class MatchDetails extends RealmObject {
         return s;
     }
 
+
+
+
+
+
+@PrimaryKey
     private int match_id;
     private int overs;
     private int totalPlayers;
-    private String time, location;
+    private Long time;
+            private String location;
     private Team homeTeam, awayTeam, toss;
     private String chooseTo;
     private boolean firstInningsCompleted;
     private boolean homeTeamBatting;
+
     private RealmList<Player> homeTeamPlayers = new RealmList<>();
     private RealmList<Player> awayTeamPlayers = new RealmList<>();
+    private RealmList<Player> notAssignedPlayers = new RealmList<>();
 
     public String getPlayerWhoLoseWicket() {
         return playerWhoLoseWicket;

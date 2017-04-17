@@ -18,12 +18,15 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 import realmstudy.data.CommanData;
 import realmstudy.data.RealmObjectData.InningsData;
 import realmstudy.data.RealmObjectData.Player;
 import realmstudy.fragments.DialogFragment.NewPlayerDialog;
 import realmstudy.fragments.DialogFragment.OutDialogFragment;
 import realmstudy.fragments.DialogFragment.SelectMultiPlayerDialog;
+import realmstudy.fragments.DialogFragment.SelectTeamDialog;
 import realmstudy.fragments.MenuActivity;
 import realmstudy.interfaces.DialogInterface;
 import realmstudy.fragments.DialogFragment.NewTeamDialog;
@@ -168,6 +171,32 @@ public class MainFragmentActivity extends AppCompatActivity implements MsgToFrag
 
 
     }
+
+
+    public void showMultiTeamSelect(int match_id, boolean ishomeTeam, int current_bowler) {
+
+        // DialogFragment.show() will take care of adding the fragment
+        // in a transaction.  We also want to remove any currently showing
+        // dialog, so make our own transaction and take care of that here.
+
+        this.dialogInterface = dialogInterface;
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+
+        // Create and show the dialog.
+        DialogFragment newFragment = SelectTeamDialog.newInstance(match_id, ishomeTeam);
+        //   ((SelectMultiPlayerDialog) newFragment).setDialogInterface(dialogInterface, match_id, ishomeTeam, current_bowler);
+        System.out.println("______________cccc");
+
+        newFragment.show(ft, "dialog");
+
+
+    }
+
     public void closePrevSelectPlayer(){
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
@@ -179,7 +208,7 @@ public class MainFragmentActivity extends AppCompatActivity implements MsgToFrag
         }
     }
 
-    public void showSelectplayer(int match_id, boolean ishomeTeam, Player current_bowler, String title) {
+    public void showSelectplayer(int match_id, boolean ishomeTeam, Player current_bowler, String title,int assignTo) {
 
         // DialogFragment.show() will take care of adding the fragment
         // in a transaction.  We also want to remove any currently showing
@@ -194,13 +223,13 @@ public class MainFragmentActivity extends AppCompatActivity implements MsgToFrag
         if (current_bowler != null)
             cb = current_bowler.getpID();
         // Create and show the dialog.
-        DialogFragment newFragment = SelectPlayerDialog.newInstance(match_id, ishomeTeam, cb, title);
+        DialogFragment newFragment = SelectPlayerDialog.newInstance(match_id, ishomeTeam, cb, title,assignTo);
         // ((SelectPlayerDialog) newFragment).setDialogInterface(dialogInterface, match_id, ishomeTeam, current_bowler,title);
 //        if (type == 0)
 //            newFragment = NewTeamDialog.newInstance();
 //        else
 //            newFragment = NewPlayerDialog.newInstance().setDialogInterface(dialogInterface);
-
+        System.out.println("_________SHH");
         newFragment.show(ft, "dialog");
 
 
@@ -289,7 +318,21 @@ public class MainFragmentActivity extends AppCompatActivity implements MsgToFrag
     }
 
     @Override
+    public void messageFromDialog(int dialogType, boolean success, String data,String message,int assignTo) {
+        Fragment ff = getSupportFragmentManager().findFragmentById(realmstudy.R.id.mainFrag);
+        if (ff instanceof MsgFromDialog) {
+            ((MsgFromDialog) ff).messageFromDialog(dialogType, success,data, message,assignTo);
+        }
+    }
     public void messageFromDialog(int dialogType, boolean success, String data,String message) {
+        Fragment ff = getSupportFragmentManager().findFragmentById(realmstudy.R.id.mainFrag);
+        if (ff instanceof MsgFromDialog) {
+            ((MsgFromDialog) ff).messageFromDialog(dialogType, success,data, message);
+        }
+    }
+
+    @Override
+    public void messageFromDialog(int dialogType, boolean success, ArrayList<Integer> data, String message) {
         Fragment ff = getSupportFragmentManager().findFragmentById(realmstudy.R.id.mainFrag);
         if (ff instanceof MsgFromDialog) {
             ((MsgFromDialog) ff).messageFromDialog(dialogType, success,data, message);

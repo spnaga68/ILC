@@ -56,7 +56,7 @@ public class TeamListSelectionFragment extends Fragment implements DialogInterfa
             @Override
             public void onClick(View view) {
                 String s = adapter.selectedItem();
-                System.out.println("______________" + s);
+               // System.out.println("______________" + s);
                 if (!s.trim().isEmpty()) {
                     Bundle b = new Bundle();
                     b.putString("teamIDs", s);

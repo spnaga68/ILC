@@ -38,8 +38,15 @@ public class MenuActivity extends Fragment {
                 getActivity().getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.mainFrag,new SavedListFragment()).commit();
                 break;
             case R.id.profile_menu_lay:
+                Fragment f=new InfoFragment();
+                Bundle b=new Bundle();
+                b.putInt("match_id",1491894337);
+                f.setArguments(b);
+                getActivity().getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.mainFrag,f).commit();
                 break;
             case R.id.schedule_game_menu_lay:
+                getActivity().getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.mainFrag,new ScheduleNewGame()).commit();
+
                 break;
             case R.id.add_player_lay:
                 getActivity().getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.mainFrag,new PlayerListFragment()).commit();

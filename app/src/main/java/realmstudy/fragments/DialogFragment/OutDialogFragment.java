@@ -1,8 +1,11 @@
 package realmstudy.fragments.DialogFragment;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
@@ -23,7 +26,6 @@ import java.util.ArrayList;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
-import io.realm.RealmResults;
 import realmstudy.MainFragmentActivity;
 import realmstudy.R;
 import realmstudy.data.CommanData;
@@ -51,6 +53,9 @@ public class OutDialogFragment extends DialogFragment {
     private int non_striker;
     int current_bowler;
     private ScoreBoardData current_score_data;
+    LinearLayout create_new_player, player_to_bowling_team_lay, out_lay;
+    private Spinner db_players;
+    private TextView back, add_player_button;
 
 
     public static OutDialogFragment newInstance(int striker, int non_striker, int current_bowler_id, int matchDetails) {
@@ -105,20 +110,12 @@ public class OutDialogFragment extends DialogFragment {
         final Spinner wicket_of;
         android.support.v7.widget.AppCompatButton submit;
         final GRadioGroup rg = new GRadioGroup();
-
-
-//        if (v != null)
-//            v.dismiss();
         realm = ((MainFragmentActivity) (getActivity())).getRealm();
-        RealmResults<Player> players = realm.where(Player.class).findAll();
-
-//
-//        ArrayAdapter<Player> oppPlayer;
-//        oppPlayer = new ArrayAdapter<>(
-//                getActivity(), R.layout.player_spinner_item, players);
-
 
 // Create the AlertDialog
+
+        back = (TextView) v.findViewById(realmstudy.R.id.back);
+        add_player_button = (TextView) v.findViewById(realmstudy.R.id.add_player_button);
 
 
         caught = (RadioButton) v.findViewById(realmstudy.R.id.caught);
@@ -127,16 +124,39 @@ public class OutDialogFragment extends DialogFragment {
         runnout = (RadioButton) v.findViewById(realmstudy.R.id.runnout);
         hitwicket = (RadioButton) v.findViewById(realmstudy.R.id.hitwicket);
         caught_by_lay = (LinearLayout) v.findViewById(realmstudy.R.id.caught_by_lay);
+        player_to_bowling_team_lay = (LinearLayout) v.findViewById(realmstudy.R.id.player_to_bowling_team_lay);
+        out_lay = (LinearLayout) v.findViewById(realmstudy.R.id.out_lay);
         caught_by = (Spinner) v.findViewById(realmstudy.R.id.caught_by);
         run_out_lay = (LinearLayout) v.findViewById(realmstudy.R.id.run_out_lay);
-        runs_scored_spinner = (Spinner) v.findViewById(realmstudy.R.id.runs_scored_spinner);
         run_out_by = (Spinner) v.findViewById(realmstudy.R.id.run_out_by);
         wicket_of = (Spinner) v.findViewById(realmstudy.R.id.wicket_of);
+        db_players = (Spinner) v.findViewById(realmstudy.R.id.db_players);
         submit = (android.support.v7.widget.AppCompatButton) v.findViewById(realmstudy.R.id.submit);
-
+        create_new_player = (LinearLayout) v.findViewById(R.id.create_new_player);
         TextView from_contacts = (TextView) v.findViewById(realmstudy.R.id.from_contacts);
+        TextView new_player_dialog_title = (TextView) v.findViewById(realmstudy.R.id.new_player_dialog_title);
         final TextView name = (TextView) v.findViewById(realmstudy.R.id.name);
-        final TextView ph_no = (TextView) v.findViewById(realmstudy.R.id.ph_no);
+        final TextView ph_no = (TextView) v.findViewById(realmstudy.R.id.time);
+        // new_player_dialog_title.setText(getString(R.string.add_player_bowling_team));
+
+        add_player_button.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                out_lay.setVisibility(View.GONE);
+                player_to_bowling_team_lay.setVisibility(View.VISIBLE);
+            }
+        });
+
+        back.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                out_lay.setVisibility(View.VISIBLE);
+                player_to_bowling_team_lay.setVisibility(View.GONE);
+            }
+        });
+
 
         AppCompatButton submit_new_player = (android.support.v7.widget.AppCompatButton) v.findViewById(realmstudy.R.id.submit_new_player);
 
@@ -167,23 +187,7 @@ public class OutDialogFragment extends DialogFragment {
                 if (!name.getText().toString().isEmpty()) {
                     //     assignToPlayer = 5;
                     int id = newPlayerAdded(name.getText().toString(), ph_no.getText().toString());
-//                    if (assignToPlayer == 5) {
-//                        ArrayList<Player> bowlingTeamPlayers = getBowlingTeamPlayer();
-//                        ArrayAdapter<Player> bowling_team_player_adapter = new ArrayAdapter<>(
-//                                getActivity(), realmstudy.R.layout.player_spinner_item, bowlingTeamPlayers);
-//                        if (caught_by != null && run_out_by != null) {
-//                            System.out.println();
-//                            caught_by.setAdapter(bowling_team_player_adapter);
-//                            run_out_by.setAdapter(bowling_team_player_adapter);
-//                            int ids = 0;
-//                            for (int i = 0; i < bowlingTeamPlayers.size(); i++) {
-//                                if (bowlingTeamPlayers.get(i).getpID() == id)
-//                                    ids = i;
-//                            }
-//                            caught_by.setSelection(ids);
-//                            run_out_by.setSelection(ids);
-//                        }
-//                    }
+                    addPlayerToBowlingTeam(id);
                 }
             }
         });
@@ -202,8 +206,8 @@ public class OutDialogFragment extends DialogFragment {
 //        }
         bowlingTeamPlayers = getBowlingTeamPlayer();
         ArrayList<Player> bat = new ArrayList<>();
-        bat.add(RealmDB.getPlayer(getActivity(), realm, striker));
-        bat.add(RealmDB.getPlayer(getActivity(), realm, non_striker));
+        bat.add(RealmDB.getPlayer(realm, striker));
+        bat.add(RealmDB.getPlayer(realm, non_striker));
         ArrayAdapter<Player> batters;
         batters = new ArrayAdapter<>(getActivity(), realmstudy.R.layout.player_spinner_item, bat);
         wicket_of.setAdapter(batters);
@@ -218,6 +222,10 @@ public class OutDialogFragment extends DialogFragment {
 
         }
 
+        ArrayList<Player> non_players = RealmDB.getPlayerNotInBothTeam(getActivity(), realm, matchDetails);
+        ArrayAdapter<Player> non_players_adap;
+        non_players_adap = new ArrayAdapter<>(getActivity(), realmstudy.R.layout.player_spinner_item, non_players);
+        db_players.setAdapter(non_players_adap);
         RadioButton[] rb = {caught, lbw, bowled, runnout, hitwicket};
 
         rg.createRadioGroup(rb);
@@ -227,6 +235,7 @@ public class OutDialogFragment extends DialogFragment {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
                     caught_by_lay.setVisibility(View.VISIBLE);
+                    create_new_player.setVisibility(View.VISIBLE);
                     run_out_lay.setVisibility(View.GONE);
                 }
             }
@@ -239,6 +248,7 @@ public class OutDialogFragment extends DialogFragment {
                 if (b) {
                     caught_by_lay.setVisibility(View.GONE);
                     run_out_lay.setVisibility(View.GONE);
+                    create_new_player.setVisibility(View.GONE);
                 }
             }
         });
@@ -249,6 +259,7 @@ public class OutDialogFragment extends DialogFragment {
                 if (b) {
                     caught_by_lay.setVisibility(View.GONE);
                     run_out_lay.setVisibility(View.GONE);
+                    create_new_player.setVisibility(View.GONE);
                 }
             }
         });
@@ -258,6 +269,8 @@ public class OutDialogFragment extends DialogFragment {
                 if (b) {
                     caught_by_lay.setVisibility(View.GONE);
                     run_out_lay.setVisibility(View.VISIBLE);
+                    create_new_player.setVisibility(View.VISIBLE);
+
                 }
             }
         });
@@ -267,6 +280,7 @@ public class OutDialogFragment extends DialogFragment {
                 if (b) {
                     caught_by_lay.setVisibility(View.GONE);
                     run_out_lay.setVisibility(View.GONE);
+                    create_new_player.setVisibility(View.GONE);
                 }
             }
         });
@@ -283,7 +297,7 @@ public class OutDialogFragment extends DialogFragment {
                 switch (s.getTag().toString()) {
                     case "caught":
                         w = RealmDB.wicketCaught(getActivity(), realm, striker, current_bowler_id, CommanData.W_CAUGHT,
-                                (int) caught_by.getSelectedItem(), current_score_data.getTotalOver(), matchDetails.getMatch_id());
+                                ((Player) caught_by.getSelectedItem()).getpID(), current_score_data.getTotalOver(), matchDetails.getMatch_id());
 
                         break;
                     case "lbw":
@@ -297,7 +311,8 @@ public class OutDialogFragment extends DialogFragment {
 
                         break;
                     case "runout":
-                        w = RealmDB.wicketRunout(getActivity(), realm, (int) wicket_of.getSelectedItem(), current_bowler_id, CommanData.W_RUNOUT, (int) run_out_by.getSelectedItem(),
+                        w = RealmDB.wicketRunout(getActivity(), realm, ((Player) wicket_of.getSelectedItem()).getpID(), current_bowler_id,
+                                CommanData.W_RUNOUT, ((Player) run_out_by.getSelectedItem()).getpID(),
                                 current_score_data.getTotalOver(), matchDetails.getMatch_id());
 
                         break;
@@ -308,10 +323,9 @@ public class OutDialogFragment extends DialogFragment {
                         break;
 
                 }
-                if (w != null){
+                if (w != null) {
                     dismiss();
-               // System.out.println("_____Out"+CommanData.DIALOG_OUT+"__"+w+"__");
-                ((MsgFromDialog) getActivity()).messageFromDialog(CommanData.DIALOG_OUT, w != null, w, "");
+                    ((MsgFromDialog) getActivity()).messageFromDialog(CommanData.DIALOG_OUT, w != null, w, "");
                 }
             }
 
@@ -321,6 +335,28 @@ public class OutDialogFragment extends DialogFragment {
 
     }
 
+    private void addPlayerToBowlingTeam(int id) {
+        if (id != -1) {
+            if (RealmDB.addPlayerToMatch(id, getActivity(), realm, matchDetails, !matchDetails.isHomeTeamBatting()) != -1) {
+                ArrayList<Player> bowlingTeamPlayers = getBowlingTeamPlayer();
+                ArrayAdapter<Player> bowling_team_player_adapter = new ArrayAdapter<>(
+                        getActivity(), realmstudy.R.layout.player_spinner_item, bowlingTeamPlayers);
+                if (caught_by != null && run_out_by != null) {
+                    System.out.println();
+                    caught_by.setAdapter(bowling_team_player_adapter);
+                    run_out_by.setAdapter(bowling_team_player_adapter);
+                    int ids = 0;
+                    for (int i = 0; i < bowlingTeamPlayers.size(); i++) {
+                        if (bowlingTeamPlayers.get(i).getpID() == id)
+                            ids = i;
+                    }
+                    caught_by.setSelection(ids);
+                    run_out_by.setSelection(ids);
+                }
+            }
+        }
+    }
+
     private void pickFromContacts() {
         Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
         startActivityForResult(intent, PICK_CONTACT);
@@ -328,68 +364,7 @@ public class OutDialogFragment extends DialogFragment {
 
     int newPlayerAdded(String name, String ph_no) {
         Player dummy = RealmDB.AddPlayer(getActivity(), realm, name, ph_no);
-        ((MainFragmentActivity) getActivity()).messageFromDialog(CommanData.DIALOG_OUT, true, String.valueOf(dummy.getpID()), "Success");
 
-//        if (assignToPlayer == 0) {
-//            BatingProfile bf = RealmDB.createBattingProfile(getActivity(), realm);
-//            striker = RealmDB.AddPlayer(getActivity(), realm, name, ph_no);
-//            realm.beginTransaction();
-//            if (matchDetails.isHomeTeamBatting())
-//                matchDetails.addHomePlayer(striker);
-//            else
-//                matchDetails.addAwayPlayer(striker);
-//            bf.setCurrentStatus(CommanData.StatusBatting);
-//            striker.setRecentBatingProfile(bf);
-//            realm.commitTransaction();
-//        } else if (assignToPlayer == 1) {
-//            BatingProfile bf = RealmDB.createBattingProfile(getActivity(), realm);
-//            non_striker = RealmDB.AddPlayer(getActivity(), realm, name, ph_no);
-//            realm.beginTransaction();
-//            if (matchDetails.isHomeTeamBatting())
-//                matchDetails.addHomePlayer(non_striker);
-//            else
-//                matchDetails.addAwayPlayer(non_striker);
-//            bf.setCurrentStatus(CommanData.StatusBatting);
-//            non_striker.setRecentBatingProfile(bf);
-//            realm.commitTransaction();
-//        } else if (assignToPlayer == 2) {
-//            current_bowler = RealmDB.AddPlayer(getActivity(), realm, name, ph_no);
-//            BowlingProfile bf = RealmDB.createBowlingProfile(getActivity(), realm);
-//            realm.beginTransaction();
-//            if (matchDetails.isHomeTeamBatting())
-//                current_bowler = matchDetails.addAwayPlayer(current_bowler);
-//            else
-//                current_bowler = matchDetails.addHomePlayer(current_bowler);
-//            current_bowler.setRecentBowlingProfile(bf);
-//            realm.commitTransaction();
-//        } else if (assignToPlayer == 3) {
-//            next_bowler = RealmDB.AddPlayer(getActivity(), realm, name, ph_no);
-//            BowlingProfile bf = RealmDB.createBowlingProfile(getActivity(), realm);
-//            realm.beginTransaction();
-//            if (matchDetails.isHomeTeamBatting())
-//                current_bowler = matchDetails.addAwayPlayer(next_bowler);
-//            else
-//                current_bowler = matchDetails.addHomePlayer(next_bowler);
-//            next_bowler.setRecentBowlingProfile(bf);
-//            realm.commitTransaction();
-//        } else if (assignToPlayer == 4) {
-//            next_bowler = RealmDB.AddPlayer(getActivity(), realm, name, ph_no);
-//            BowlingProfile bf = RealmDB.createBowlingProfile(getActivity(), realm);
-//            realm.beginTransaction();
-//            if (matchDetails.isHomeTeamBatting())
-//                current_bowler = matchDetails.addAwayPlayer(next_bowler);
-//            else
-//                current_bowler = matchDetails.addHomePlayer(next_bowler);
-//            next_bowler.setRecentBowlingProfile(bf);
-//            realm.commitTransaction();
-//        } else if (assignToPlayer == 5) {
-//            dummy = RealmDB.AddPlayer(getActivity(), realm, name, ph_no);
-//            //  BowlingProfile bf = RealmDB.createBowlingProfile(getActivity(), realm);
-//            realm.beginTransaction();
-//            matchDetails.addAwayPlayer(dummy);
-//            //  next_bowler.setRecentBowlingProfile(bf);
-//            realm.commitTransaction();
-//        }
 
         //   updateUI();
         if (dummy != null)
@@ -404,7 +379,7 @@ public class OutDialogFragment extends DialogFragment {
 
             //    String s[] = matchDetails.getBowlingTeamPlayer().split(",");
             for (int i = 0; i < matchDetails.getBowlingTeamPlayer().size(); i++) {
-                bowlingTeamPlayers.add(RealmDB.getPlayer(getActivity(), realm, (matchDetails.getBowlingTeamPlayer().get(i).getpID())));
+                bowlingTeamPlayers.add(RealmDB.getPlayer( realm, (matchDetails.getBowlingTeamPlayer().get(i).getpID())));
 
             }
             return bowlingTeamPlayers;
@@ -413,4 +388,56 @@ public class OutDialogFragment extends DialogFragment {
 
     }
 
+
+    @Override
+    public void onActivityResult(int reqCode, int resultCode, Intent data) {
+        super.onActivityResult(reqCode, resultCode, data);
+        String cNumber = "";
+        String name = "";
+        System.out.println("_____PP" + 3);
+        switch (reqCode) {
+            case (PICK_CONTACT):
+                if (resultCode == Activity.RESULT_OK) {
+
+                    Uri contactData = data.getData();
+                    Cursor c = getActivity().getContentResolver().query(contactData, null, null, null, null);
+                    if (c.moveToFirst()) {
+
+
+                        String id = c.getString(c.getColumnIndexOrThrow(ContactsContract.Contacts._ID));
+
+                        String hasPhone = c.getString(c.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
+
+                        if (hasPhone.equalsIgnoreCase("1")) {
+                            Cursor phones = getActivity().getContentResolver().query(
+                                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+                                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + id,
+                                    null, null);
+                            phones.moveToFirst();
+                            cNumber = phones.getString(phones.getColumnIndex("data1"));
+                            System.out.println("number is:" + cNumber);
+                        }
+                        name = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+
+
+                    }
+
+                    if (!name.trim().isEmpty()) {
+
+                        if (!name.isEmpty()) {
+                            Realm.init(getActivity());
+                            RealmConfiguration config = new RealmConfiguration.Builder()
+                                    .build();
+
+                            Realm.getInstance(config);
+                            int id = newPlayerAdded(name, cNumber);
+                            addPlayerToBowlingTeam(id);
+
+                        }
+                        break;
+                    }
+                }
+        }
+        //   dismiss();
+    }
 }

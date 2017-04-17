@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import realmstudy.MainFragmentActivity;
 import realmstudy.R;
 import realmstudy.data.RealmObjectData.Player;
 
@@ -50,7 +49,7 @@ public class PlayerListAdapter extends RealmRecyclerViewAdapter<Player, PlayerLi
         public MyViewHolder(View view) {
             super(view);
             title = (TextView) view.findViewById(R.id.playername);
-            ph_no= (TextView) view.findViewById(R.id.ph_no);
+            ph_no= (TextView) view.findViewById(R.id.time);
             view.setOnLongClickListener(this);
         }
 

@@ -1,6 +1,7 @@
 package realmstudy.fragments;
 
 
+import android.app.Activity;
 import android.content.Context;
 
 import android.graphics.drawable.Drawable;
@@ -29,6 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import realmstudy.MyApplication;
 import realmstudy.data.RealmObjectData.MatchDetails;
 import realmstudy.data.RealmObjectData.Team;
 import realmstudy.lib.CustomAnimationDrawable;
@@ -40,6 +42,8 @@ import realmstudy.lib.Animation;
 import realmstudy.lib.Coin;
 
 import java.util.EnumMap;
+
+import javax.inject.Inject;
 
 import io.realm.Realm;
 
@@ -70,19 +74,48 @@ public class TossFragment extends Fragment {
     private TextView venues;
     private EditText venue;
     private TextView toss;
-    private TextView team;
+    private TextView team, retoss;
     private RadioGroup like_bat_bowl;
     private ImageView coin_image_view;
     private RadioGroup choose_to_bat_bowl, team_ask_toss_radio, toss_radio_group;
     private android.support.v7.widget.AppCompatButton start_match;
     RadioButton team_ask_home, like_to_bat, choose_to_bat, toss_head;
     private boolean tossWon;
+    private int match_id = -1;
+    private boolean homeWin;
+    LinearLayout before_toss_lay, after_toss_lay;
+    private TextView toss_won_detail;
+    private RadioButton team_ask_away;
+    @Inject
+    Realm realm;
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        try {
+            Bundle b = getArguments();
+            if (b != null)
+                match_id = b.getInt("match_id");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.toss_fragment, container, false);
+        ((MyApplication) getActivity().getApplication()).getComponent().inject(this);
+        try {
+            Bundle b = getArguments();
+            String s[] = b.getString("teamIDs").split("__");
+            homeTeam = realm.where(Team.class).equalTo("team_id", Integer.parseInt(s[0])).findFirst();
+            awayTeam = realm.where(Team.class).equalTo("team_id", Integer.parseInt(s[1])).findFirst();
+            match_id = b.getInt("match_id");
+            System.out.println("TeamName____" + homeTeam.name + "___" + awayTeam.name);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         // initialize the coin image and result text views
         initViews();
 
@@ -98,52 +131,49 @@ public class TossFragment extends Fragment {
             tapper = new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    flipCoin();
+                    if (!venue.getText().toString().trim().isEmpty())
+                        if (!total_overs.getText().toString().trim().isEmpty()) {
+                            flipCoin();
+                        } else
+                            Toast.makeText(getActivity(), "total", Toast.LENGTH_SHORT).show();
+                    else
+                        Toast.makeText(getActivity(), "venue", Toast.LENGTH_SHORT).show();
                 }
             };
         }
 
         start_match = (AppCompatButton) v.findViewById(R.id.start_match);
+
         start_match.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(flipCounter>=1)
-                if(!venue.getText().toString().trim().isEmpty())
-                if(!total_overs.getText().toString().trim().isEmpty()){
+                if (flipCounter >= 1)
+                    if (!venue.getText().toString().trim().isEmpty())
+                        if (!total_overs.getText().toString().trim().isEmpty()) {
 
-                Realm realm = ((MainFragmentActivity) getActivity()).getRealm();
 
-                try {
-                    Bundle b = getArguments();
-                    String s[] = b.getString("teamIDs").split("__");
-                    homeTeam = realm.where(Team.class).equalTo("team_id", Integer.parseInt(s[0])).findFirst();
-                    awayTeam = realm.where(Team.class).equalTo("team_id", Integer.parseInt(s[1])).findFirst();
-                    System.out.println("TeamName____" + homeTeam.name + "___" + awayTeam.name);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                String chooseTo = "bowl";
-                if (choose_to_bat_bowl.getCheckedRadioButtonId() == choose_to_bat.getId())
-                    chooseTo = "bat";
-                boolean homeWin = false;
-                if (team_ask_toss_radio.getCheckedRadioButtonId() == team_ask_home.getId() && tossWon || team_ask_toss_radio.getCheckedRadioButtonId() != team_ask_home.getId() && !tossWon)
-                    homeWin = true;
-                md = RealmDB.createNewMatch(getActivity(), realm, homeTeam, awayTeam, chooseTo, homeWin ? homeTeam : awayTeam, Integer.parseInt(total_overs.getText().toString()), venue.getText().toString(), no_of_players.getSelectedItemPosition() + 2);
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Bundle b = new Bundle();
-                        b.putInt("match_id", md.getMatch_id());
-                        MainActivity mf = new MainActivity();
-                        mf.setArguments(b);
-                        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.mainFrag, mf).commit();
-                    }
-                }, 100);
+                            String chooseTo = "bowl";
+                            if (choose_to_bat_bowl.getCheckedRadioButtonId() == choose_to_bat.getId())
+                                chooseTo = "bat";
 
-            }else
-                    Toast.makeText(getActivity(), "total", Toast.LENGTH_SHORT).show();
-                else
-                    Toast.makeText(getActivity(), "venue", Toast.LENGTH_SHORT).show();
+
+                            md = RealmDB.UpdateorCreateMatchDetail(getActivity(), realm, homeTeam, awayTeam, chooseTo, homeWin ? homeTeam : awayTeam, Integer.parseInt(total_overs.getText().toString()), venue.getText().toString(), no_of_players.getSelectedItemPosition() + 2, 0, match_id);
+
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Bundle b = new Bundle();
+                                    b.putInt("match_id", md.getMatch_id());
+                                    MainActivity mf = new MainActivity();
+                                    mf.setArguments(b);
+                                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.mainFrag, mf).commit();
+                                }
+                            }, 100);
+
+                        } else
+                            Toast.makeText(getActivity(), "total", Toast.LENGTH_SHORT).show();
+                    else
+                        Toast.makeText(getActivity(), "venue", Toast.LENGTH_SHORT).show();
                 else
                     Toast.makeText(getActivity(), "coin", Toast.LENGTH_SHORT).show();
 
@@ -364,21 +394,6 @@ public class TossFragment extends Fragment {
         coinAnimation.start();
         updateResultText(resultState);
 
-        // handled by animation callback
-        // playCoinSound();
-        // updateResultText(resultState, resultText);
-//        } else {
-//            // load the appropriate coin image based on the state
-//            coinImageDrawable = coinImagesMap.get(resultState);
-//            coinImage.setImageDrawable(coinImageDrawable);
-//
-//            // hide the animation and display the static image
-//            displayCoinImage(true);
-//            displayCoinAnimation(false);
-//            playCoinSound();
-//            updateResultText(resultState);
-//            resumeListeners();
-//        }
     }
 
     private void initSounds() {
@@ -423,15 +438,28 @@ public class TossFragment extends Fragment {
 
         tossWon = (toss_radio_group.getCheckedRadioButtonId() == toss_head.getId() && tossedHead) || (toss_radio_group.getCheckedRadioButtonId() != toss_head.getId() && !tossedHead);
 
-
+        homeWin = false;
+        if (team_ask_toss_radio.getCheckedRadioButtonId() == team_ask_home.getId() && tossWon || team_ask_toss_radio.getCheckedRadioButtonId() != team_ask_home.getId() && !tossWon)
+            homeWin = true;
         System.out.println("______________" + tossWon);
+        if (getActivity() != null) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (toss_won_detail != null) {
+                        toss_won_detail.setText((homeWin ? homeTeam.nick_name : awayTeam.nick_name).trim() + "   " + getString(R.string.won_toss));
+                        resetCoin();
+                        before_toss_lay.setVisibility(View.GONE);
+                        after_toss_lay.setVisibility(View.VISIBLE);
 
+                        resetInstructions();
+                        loadResources();
+                        resumeListeners();
+                    }
+                }
+            }, 2000);
+        }
 
-//        } else {
-//            resultText.setText("");
-//        }
-
-//        updateStatsText();
 
     }
 
@@ -486,6 +514,7 @@ public class TossFragment extends Fragment {
         venue = (EditText) v.findViewById(R.id.venue);
         toss = (TextView) v.findViewById(R.id.toss);
         team = (TextView) v.findViewById(R.id.team);
+        toss_won_detail = (TextView) v.findViewById(R.id.toss_won_detail);
         like_bat_bowl = (RadioGroup) v.findViewById(R.id.like_bat_bowl);
         coin_image_view = (ImageView) v.findViewById(R.id.coin_image_view);
         choose_to_bat_bowl = (RadioGroup) v.findViewById(R.id.choose_to_bat_bowl);
@@ -493,16 +522,30 @@ public class TossFragment extends Fragment {
         toss_radio_group = (RadioGroup) v.findViewById(R.id.toss_radio_group);
         start_match = (android.support.v7.widget.AppCompatButton) v.findViewById(R.id.start_match);
         team_ask_home = (RadioButton) v.findViewById(R.id.team_ask_home);
+        team_ask_away = (RadioButton) v.findViewById(R.id.team_ask_away);
         like_to_bat = (RadioButton) v.findViewById(R.id.like_to_bat);
         choose_to_bat = (RadioButton) v.findViewById(R.id.choose_to_bat);
         //  toss_head_tail = (RadioGroup) v.findViewById(R.id.toss_head_tail);
         toss_head = (RadioButton) v.findViewById(R.id.toss_head);
         choose_to_lay = (LinearLayout) v.findViewById(R.id.choose_to_lay);
+        retoss = (TextView) v.findViewById(R.id.retoss);
+        before_toss_lay = (LinearLayout) v.findViewById(R.id.before_toss_lay);
+        after_toss_lay = (LinearLayout) v.findViewById(R.id.after_toss_lay);
 
+
+        retoss.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                before_toss_lay.setVisibility(View.VISIBLE);
+                after_toss_lay.setVisibility(View.GONE);
+            }
+        });
 
         SpinnerAdapter adap = new ArrayAdapter<String>(getActivity(), R.layout.spinner_text_item, getResources().getStringArray(R.array.no_of_players_in_match));
         no_of_players.setAdapter(adap);
-
+        team_ask_home.setText(homeTeam.nick_name);
+        team_ask_away.setText(awayTeam.nick_name);
     }
 
     private void pauseListeners() {

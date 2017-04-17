@@ -2,13 +2,12 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:background="@color/appbg"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/appbg">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/start_match"
         android:layout_alignParentTop="true"
         android:layout_marginTop="10dp">
 
@@ -22,279 +21,318 @@
             android:orientation="vertical">
 
             <LinearLayout
+                android:id="@+id/before_toss_lay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/Noofplayers"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-
-                    android:layout_weight=".7"
-                    android:text="@string/Noofplayers"
-                    android:textColor="@color/dialog_text_color"
-                    android:textSize="16sp" />
+                android:orientation="vertical"
+                android:visibility="visible">
 
                 <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="60dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
 
-                    android:layout_weight="1.3"
-                    android:background="@drawable/background">
-
-                    <Spinner
-                        android:id="@+id/no_of_players"
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/Noofplayers"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
 
-                        android:entries="@array/no_of_players_in_match"
+                        android:layout_weight=".7"
+                        android:text="@string/Noofplayers"
+                        android:textColor="@color/dialog_text_color"
+                        android:textSize="16sp" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="60dp"
+
+                        android:layout_weight="1.3"
+                        android:background="@drawable/background">
+
+                        <Spinner
+                            android:id="@+id/no_of_players"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+
+                            android:entries="@array/no_of_players_in_match"
+                            android:gravity="center"
+                            android:hint="@string/Noofplayers"
+                            android:singleLine="true" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/overss"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+
+                        android:layout_weight=".7"
+                        android:text="@string/total_overs"
+                        android:textColor="@color/dialog_text_color"
+                        android:textSize="16sp" />
+
+                    <EditText
+                        android:id="@+id/total_overs"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+
+                        android:layout_weight="1.3"
                         android:gravity="center"
-                        android:hint="@string/Noofplayers"
+
+                        android:hint="@string/total_overs"
+                        android:imeOptions="actionNext"
+                        android:inputType="number"
+                        android:maxLength="2"
                         android:singleLine="true" />
                 </LinearLayout>
-            </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/overss"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-
-                    android:layout_weight=".7"
-                    android:text="@string/total_overs"
-                    android:textColor="@color/dialog_text_color"
-                    android:textSize="16sp" />
-
-                <EditText
-                    android:id="@+id/total_overs"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-
-                    android:layout_weight="1.3"
                     android:gravity="center"
+                    android:orientation="horizontal">
 
-                    android:hint="@string/total_overs"
-                    android:imeOptions="actionNext"
-                    android:inputType="number"
-                    android:maxLength="2"
-                    android:singleLine="true" />
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/venues"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal">
+                        android:layout_weight=".7"
+                        android:text="@string/venue"
+                        android:textColor="@color/dialog_text_color"
+                        android:textSize="16sp" />
 
-                <TextView
-                    android:id="@+id/venues"
-                    android:layout_width="0dp"
+                    <EditText
+                        android:id="@+id/venue"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.3"
+                        android:gravity="center"
+                        android:hint="@string/venue"
+                        android:imeOptions="actionDone"
+                        android:inputType="textCapSentences"
+                        android:singleLine="true" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-
-                    android:layout_weight=".7"
-                    android:text="@string/venue"
-                    android:textColor="@color/dialog_text_color"
-                    android:textSize="16sp" />
-
-                <EditText
-                    android:id="@+id/venue"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:inputType="textCapSentences"
-                    android:layout_weight="1.3"
                     android:gravity="center"
-                    android:hint="@string/venue"
-                    android:imeOptions="actionDone"
-                    android:singleLine="true" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/toss"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-
-                    android:layout_weight=".7"
-                    android:text="@string/team_ask_toss"
-                    android:textColor="@color/dialog_text_color"
-                    android:textSize="16sp" />
-
-                <RadioGroup
-                    android:id="@+id/team_ask_toss_radio"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1.3"
                     android:orientation="horizontal">
 
-                    <RadioButton
-                        android:id="@+id/team_ask_home"
-                        android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/toss"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="10dp"
+
+                        android:layout_weight=".7"
+                        android:text="@string/team_ask_toss"
+                        android:textColor="@color/dialog_text_color"
+                        android:textSize="16sp" />
+
+                    <RadioGroup
+                        android:id="@+id/team_ask_toss_radio"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.3"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/team_ask_home"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="10dp"
+                            android:checked="true"
+                            android:text="Home" />
+
+                        <RadioButton
+                            android:id="@+id/team_ask_away"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Away" />
+                    </RadioGroup>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/team"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+
+                        android:layout_weight=".7"
                         android:checked="true"
-                        android:text="Home" />
+                        android:text="@string/on_toss_won" />
 
-                    <RadioButton
-                        android:layout_width="wrap_content"
+                    <RadioGroup
+                        android:id="@+id/like_bat_bowl"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Away" />
-                </RadioGroup>
+                        android:layout_weight="1.3"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/like_to_bat"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="27dp"
+                            android:text="Bat" />
+
+                        <RadioButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Bowl" />
+                    </RadioGroup>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <TextView
+
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+
+                        android:layout_weight=".7"
+                        android:text="@string/toss"
+                        android:textColor="@color/dialog_text_color"
+                        android:textSize="16sp" />
+
+                    <RadioGroup
+                        android:id="@+id/toss_radio_group"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.3"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/toss_head"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="15dp"
+                            android:checked="true"
+                            android:text="@string/head" />
+
+                        <RadioButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/tail" />
+                    </RadioGroup>
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/coin_image_view"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/tap"
+                    android:scaleType="center" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/touch_here" />
+
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/after_toss_lay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:orientation="horizontal"
-                android:visibility="gone">
-
-                <TextView
-                    android:id="@+id/team"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-
-                    android:layout_weight=".7"
-                    android:checked="true"
-                    android:text="@string/on_toss_won" />
-
-                <RadioGroup
-                    android:id="@+id/like_bat_bowl"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1.3"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:id="@+id/like_to_bat"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="27dp"
-                        android:text="Bat" />
-
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Bowl" />
-                </RadioGroup>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <TextView
-
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-
-                    android:layout_weight=".7"
-                    android:text="@string/toss"
-                    android:textColor="@color/dialog_text_color"
-                    android:textSize="16sp" />
-
-                <RadioGroup
-                    android:id="@+id/toss_radio_group"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1.3"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:id="@+id/toss_head"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="15dp"
-                        android:checked="true"
-                        android:text="@string/head" />
-
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/tail" />
-                </RadioGroup>
-            </LinearLayout>
-
-            <ImageView
-                android:id="@+id/coin_image_view"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
+                android:visibility="gone"
                 android:layout_gravity="center"
-                android:background="@drawable/tap"
-                android:scaleType="center" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="10dp"
-                android:text="@string/touch_here"/>
-
-            <LinearLayout
-                android:id="@+id/choose_to_lay"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
                 <TextView
-                    android:layout_width="0dp"
+                    android:id="@+id/retoss"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-
-                    android:layout_weight=".7"
-                    android:text="@string/choose_to"
-                    android:textColor="@color/dialog_text_color"
-                    android:textSize="16sp" />
-
-                <RadioGroup
-                    android:id="@+id/choose_to_bat_bowl"
-                    android:layout_width="0dp"
+                    android:layout_gravity="left"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/re_toss_r_edit" />
+                <TextView
+                    android:id="@+id/toss_won_detail"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1.3"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/touch_here" />
 
+                <LinearLayout
+                    android:id="@+id/choose_to_lay"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:orientation="horizontal">
 
-                    <RadioButton
-                        android:id="@+id/choose_to_bat"
-                        android:layout_width="wrap_content"
+                    <TextView
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="10dp"
-                        android:checked="true"
-                        android:text="Bat" />
 
-                    <RadioButton
-                        android:layout_width="wrap_content"
+                        android:layout_weight=".7"
+                        android:text="@string/choose_to"
+                        android:textColor="@color/dialog_text_color"
+                        android:textSize="16sp" />
+
+                    <RadioGroup
+                        android:id="@+id/choose_to_bat_bowl"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Bowl" />
-                </RadioGroup>
+                        android:layout_weight="1.3"
+
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/choose_to_bat"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="10dp"
+                            android:checked="true"
+                            android:text="Bat" />
+
+                        <RadioButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Bowl" />
+                    </RadioGroup>
+                </LinearLayout>
+
+                <android.support.v7.widget.AppCompatButton
+                    android:id="@+id/start_match"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="10dp"
+                    android:background="@color/colorAccent"
+                    android:text="@string/start_match"
+                    android:textColor="@color/button_text_color" />
             </LinearLayout>
-
 
         </LinearLayout>
     </ScrollView>
 
-    <android.support.v7.widget.AppCompatButton
-        android:id="@+id/start_match"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:background="@color/colorAccent"
-        android:textColor="@color/button_text_color"
-        android:text="@string/start_match" />
+
 </RelativeLayout>
 
 

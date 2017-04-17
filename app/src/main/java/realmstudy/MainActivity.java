@@ -3,8 +3,8 @@ package realmstudy;
 import android.app.Dialog;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatButton;
 import android.view.LayoutInflater;
@@ -16,8 +16,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import io.realm.Realm;
+import io.realm.RealmModel;
+import io.realm.RealmObject;
 import io.realm.RealmResults;
 import okhttp3.ResponseBody;
 import realmstudy.data.CommanData;
@@ -29,6 +34,8 @@ import realmstudy.data.RealmObjectData.Player;
 import realmstudy.data.RealmObjectData.Wicket;
 import realmstudy.data.ScoreBoardData;
 import realmstudy.databaseFunctions.RealmDB;
+import realmstudy.extras.CanvasStudy;
+import realmstudy.fragments.ScoreBoardFragment;
 import realmstudy.interfaces.DialogInterface;
 import realmstudy.interfaces.MsgFromDialog;
 import realmstudy.interfaces.MsgToFragment;
@@ -37,12 +44,13 @@ import realmstudy.service.ServiceGenerator;
 import retrofit2.Call;
 import retrofit2.Callback;
 
-public class MainActivity extends Fragment implements DialogInterface, MsgToFragment, MsgFromDialog {
+public class MainActivity extends ScoreBoardFragment implements DialogInterface, MsgToFragment, MsgFromDialog {
 
     private static final int COLOR_SELECT = Color.RED;
     private static final int COLOR_UNSELECT = Color.BLACK;
     private static final int MY_PERMISSIONS_REQUEST_CONTACTS = 420;
     private static final int PICK_CONTACT = 421;
+    private static final int SUBMIT_DELAY = 0;
     private boolean IS_FIRST_INNINGS = true;
     private Realm realm;
     private ScoreBoardData current_score_data;
@@ -55,7 +63,7 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
 
     LinearLayout next_bowler_lay, current_bowler_lay;
     private int runs = 0;
-    private boolean legal = true;
+    private boolean normal_delivery = true;
     private AppCompatButton submit, out;
     private ScoreBoardData r1;
     private InningsData lastInningsDataItem;
@@ -75,6 +83,8 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
     private int assignToPlayer;
     private Dialog selectPlayerDialog;
     private AlertDialog outDialog;
+    private CanvasStudy groundFragment;
+
 
     @Override
     public void msg(String s) {
@@ -98,28 +108,20 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
         try {
             Bundle b = getArguments();
             int match_id = b.getInt("match_id");
-
             matchDetails = RealmDB.getMatchById(getActivity(), realm, match_id);
-
             resumeMatch(matchDetails);
-            System.out.println("TeamName____" + matchDetails.getHomeTeam().name);
         } catch (Exception e) {
             e.printStackTrace();
         }
         initialize(v);
-
+        init(v);
+        checkAndUpdateUI();
 
         return v;
     }
 
     //initialize views
-    private void initialize(View v) {
-        undo = (ImageButton) getActivity().findViewById(realmstudy.R.id.undo);
-        redo = (ImageButton) getActivity().findViewById(realmstudy.R.id.redo);
-        submit = (AppCompatButton) v.findViewById(realmstudy.R.id.submit);
-        out = (AppCompatButton) v.findViewById(realmstudy.R.id.out);
-        num_balls_txt = (TextView) v.findViewById(realmstudy.R.id.num_balls_txt);
-        total_runs_txt = (TextView) v.findViewById(realmstudy.R.id.total_runs_txt);
+    public void init(View v) {
         dot_txt = (TextView) v.findViewById(realmstudy.R.id.dot_txt);
         one_run_txt = (TextView) v.findViewById(realmstudy.R.id.one_run_txt);
         two_run_txt = (TextView) v.findViewById(realmstudy.R.id.two_run_txt);
@@ -134,38 +136,17 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
         leg_byes_txt = (TextView) v.findViewById(realmstudy.R.id.leg_byes_txt);
         granted_txt = (TextView) v.findViewById(realmstudy.R.id.granted_txt);
         legal_ball_txt = (TextView) v.findViewById(realmstudy.R.id.legal_ball_txt);
-
-
-        striker_score = (TextView) v.findViewById(realmstudy.R.id.striker_score);
-        non_striker_score = (TextView) v.findViewById(realmstudy.R.id.non_striker_score);
-        striker_balls = (TextView) v.findViewById(realmstudy.R.id.striker_balls);
-        non_striker_balls = (TextView) v.findViewById(realmstudy.R.id.non_striker_balls);
-        striker_name = (TextView) v.findViewById(realmstudy.R.id.striker_name);
-        non_striker_name = (TextView) v.findViewById(realmstudy.R.id.non_striker_name);
-
-        current_bowler_name = (TextView) v.findViewById(realmstudy.R.id.current_bowler_name);
-        current_bowler_overs = (TextView) v.findViewById(realmstudy.R.id.current_bowler_overs);
-        current_bowler_runs = (TextView) v.findViewById(realmstudy.R.id.current_bowler_runs);
-        next_bowler_name = (TextView) v.findViewById(realmstudy.R.id.next_bowler_name);
-        next_bowler_overs = (TextView) v.findViewById(realmstudy.R.id.next_bowler_overs);
-        next_bowler_runs = (TextView) v.findViewById(realmstudy.R.id.next_bowler_runs);
-
-        next_bowler_lay = (LinearLayout) v.findViewById(realmstudy.R.id.next_bowler_lay);
-        current_bowler_lay = (LinearLayout) v.findViewById(realmstudy.R.id.current_bowler_lay);
-
-
-        if (current_score_data == null) {
-
-            checkPlayerNotNull();
-        } else {
-            updateUI();
-        }
+        undo = (ImageButton) getActivity().findViewById(realmstudy.R.id.undo);
+        redo = (ImageButton) getActivity().findViewById(realmstudy.R.id.redo);
+        submit = (AppCompatButton) v.findViewById(realmstudy.R.id.submit);
+        out = (AppCompatButton) v.findViewById(realmstudy.R.id.out);
+        groundFragment = (CanvasStudy) getChildFragmentManager().findFragmentById(R.id.ground_frag);
 
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // callData();
-                submitbuttonClicked(view);
+                //submitbuttonClicked(view);
 
 
             }
@@ -184,7 +165,10 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
             @Override
             public void onClick(View view) {
                 undoCount = 1;
-                updateUI();
+//                checkAndUpdateUI();
+                checkUnOrRedo();
+                updateUI(current_score_data);
+
             }
         });
         redo.setOnClickListener(new View.OnClickListener() {
@@ -192,9 +176,28 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
             public void onClick(View view) {
                 redoCount = 1;
 
-                updateUI();
+                //   checkAndUpdateUI();
+                checkUnOrRedo();
+                updateUI(current_score_data);
+
             }
         });
+    }
+
+    private void checkAndUpdateUI() {
+        if (checkPlayerNotNull()) {
+            checkUnOrRedo();
+            updateUI(current_score_data);
+
+
+            normal_delivery = true;
+            runs = 0;
+            clearLegalSelection();
+            clearRunSelection();
+            legal_ball_txt.setTextColor(COLOR_SELECT);
+            checkInningsGoingOn();
+            // dot_txt.setTextColor(COLOR_SELECT);
+        }
     }
 
     private void resumeMatch(MatchDetails matchDetails) {
@@ -211,83 +214,90 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
                 // lastInningsDataItem = realm.where(InningsData.class).findAll().get(realm.where(InningsData.class).findAll().size() - 1);
                 lastInningsDataItem = thisInningsData.last();
                 current_score_data = CommanData.fromJson(lastInningsDataItem.getScoreBoardData(), ScoreBoardData.class);
-                striker = lastInningsDataItem.getStriker();
-                non_striker = lastInningsDataItem.getNonStriker();
-                current_bowler = lastInningsDataItem.getCurrentBowler();
-                next_bowler = lastInningsDataItem.getNextBowler();
+                striker = RealmDB.getPlayer(realm, lastInningsDataItem.getStriker());
+                non_striker = RealmDB.getPlayer(realm, lastInningsDataItem.getNonStriker());
+                current_bowler = RealmDB.getPlayer(realm, lastInningsDataItem.getCurrentBowler());
+                next_bowler = RealmDB.getPlayer(realm, lastInningsDataItem.getNextBowler());
 
             }
         }
     }
 
-    private void submitbuttonClicked(View view) {
+    private void submitbuttonClicked(int delay) {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                submitbuttonClicked();
+            }
+        }, delay);
+    }
+
+    private void submitbuttonClicked() {
 
         if (checkPlayerNotNull()) {
 //            if ((matchDetails.getOvers() * 6) > current_score_data.getTotalBalls() &&
 //                    RealmDB.noOfWicket(getActivity(), realm, matchDetails.getMatch_id(), !matchDetails.isFirstInningsCompleted()
 //                    ) < matchDetails.getTotalPlayers()) {
-            final int totalSize = realm.where(InningsData.class).findAll().size();
+            final int totalSize = realm.where(InningsData.class).equalTo("match_id",matchDetails.getMatch_id())
+                    .equalTo("firstInnings",!matchDetails.isFirstInningsCompleted()).findAll().size();
 
             //check undo or redo
+                if (lastInningsDataItem != null && lastInningsDataItem.getDelivery()  != totalSize) {
+                    realm.executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
 
+                            System.out.println("nnnnnnn" + lastInningsDataItem.getDelivery() + "___" + totalSize);
+                           // if (checkPlayerNotNull()) {
+                                if (matchDetails.getMatchStatus() == CommanData.MATCH_NOT_YET_STARTED)
+                                    matchDetails.setMatchStatus(CommanData.MATCH_STARTED_FI);
+                                RealmResults<InningsData> result = realm.where(InningsData.class).between("delivery", lastInningsDataItem.getDelivery()+1, totalSize ).findAll();
 
-//                if (lastInningsDataItem != null && lastInningsDataItem.getIndex() + 1 != totalSize) {
-//                    realm.executeTransaction(new Realm.Transaction() {
-//                        @Override
-//                        public void execute(Realm realm) {
-//
-//                            System.out.println("nnnnnnn" + lastInningsDataItem.getIndex() + "___" + totalSize);
-//                            if (checkPlayerNotNull()) {
-//                                if (matchDetails.getMatchStatus() == CommanData.MATCH_NOT_YET_STARTED)
-//                                    matchDetails.setMatchStatus(CommanData.MATCH_STARTED_FI);
-//                                RealmResults<InningsData> result = realm.where(InningsData.class).between("index", lastInningsDataItem.getIndex() + 1, totalSize - 1).findAll();
-//                                result.deleteAllFromRealm();
-//                                System.out.println("secCheck" + totalSize + "-____" + (undoCount));
-//                                lastInningsDataItem = realm.where(InningsData.class).findAll().get(realm.where(InningsData.class).findAll().size() - 1);
-//                                current_score_data = CommanData.fromJson(lastInningsDataItem.getScoreBoardData(), ScoreBoardData.class);
-//                                striker = lastInningsDataItem.getStriker();
-//                                non_striker = lastInningsDataItem.getNonStriker();
-//                                current_bowler = lastInningsDataItem.getCurrentBowler();
-//                                next_bowler = lastInningsDataItem.getNextBowler();
-//                                RealmDB.getBattingProfile(getActivity(), realm, striker.getpID(), matchDetails.getMatch_id()).setBallFaced(current_score_data.getStrikerBalls());
-//                                striker.setName(current_score_data.getStrikerName());
-//                                RealmDB.getBattingProfile(getActivity(), realm, striker.getpID(), matchDetails.getMatch_id()).setRuns(current_score_data.getStrikerRun());
-//                                RealmDB.getBattingProfile(getActivity(), realm, non_striker.getpID(), matchDetails.getMatch_id()).setBallFaced(current_score_data.getNonStrikerBalls());
-//                                non_striker.setName(current_score_data.getNonStrikerName());
-//                                RealmDB.getBattingProfile(getActivity(), realm, non_striker.getpID(), matchDetails.getMatch_id()).setRuns(current_score_data.getNonStrikerRun());
-//                                if (current_bowler != null) {
-//                                    RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).setRunsGranted(current_score_data.getCurrentBowlerRuns());
-//                                    RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).setBallsBowled(current_score_data.getCurrentBowlerBalls());
-//                                }
-//                                if (next_bowler != null) {
-//                                    RealmDB.getBowlingProfile(getActivity(), realm, next_bowler.getpID(), matchDetails.getMatch_id()).setRunsGranted(current_score_data.getNextBowlerRuns());
-//                                    RealmDB.getBowlingProfile(getActivity(), realm, next_bowler.getpID(), matchDetails.getMatch_id()).setBallsBowled(current_score_data.getNextBowlerBalls());
-//                                }
-//
+                            result.deleteAllFromRealm();
+                                System.out.println("secCheck" + totalSize + "-____" + (undoCount));
+                                lastInningsDataItem = realm.where(InningsData.class).findAll().get(realm.where(InningsData.class).findAll().size() - 1);
+                                current_score_data = CommanData.fromJson(lastInningsDataItem.getScoreBoardData(), ScoreBoardData.class);
+                                striker = RealmDB.getPlayer(realm,lastInningsDataItem.getStriker());
+                                non_striker = RealmDB.getPlayer(realm,lastInningsDataItem.getNonStriker());
+                                current_bowler = RealmDB.getPlayer(realm,lastInningsDataItem.getCurrentBowler());
+                                next_bowler = RealmDB.getPlayer(realm,lastInningsDataItem.getNextBowler());
+                                RealmDB.updateBattingBowlingProfile(realm,matchDetails);
+                               // RealmDB.getBattingProfile( realm, striker.getpID(), matchDetails.getMatch_id()).setBallFaced(current_score_data.getStrikerBalls());
+                                striker.setName(current_score_data.getStrikerName());
+                               // RealmDB.getBattingProfile( realm, striker.getpID(), matchDetails.getMatch_id()).setRuns(current_score_data.getStrikerRun());
+                                //RealmDB.getBattingProfile( realm, non_striker.getpID(), matchDetails.getMatch_id()).setBallFaced(current_score_data.getNonStrikerBalls());
+                                non_striker.setName(current_score_data.getNonStrikerName());
+                                RealmDB.getBattingProfile( realm, non_striker.getpID(), matchDetails.getMatch_id()).setRuns(current_score_data.getNonStrikerRun());
+                                if (current_bowler != null) {
+                                    RealmDB.getBowlingProfile( realm, current_bowler.getpID(), matchDetails.getMatch_id()).setRunsGranted(current_score_data.getCurrentBowlerRuns());
+                                    RealmDB.getBowlingProfile( realm, current_bowler.getpID(), matchDetails.getMatch_id()).setBallsBowled(current_score_data.getCurrentBowlerBalls());
+                                }
+                                if (next_bowler != null) {
+                                    RealmDB.getBowlingProfile( realm, next_bowler.getpID(), matchDetails.getMatch_id()).setRunsGranted(current_score_data.getNextBowlerRuns());
+                                    RealmDB.getBowlingProfile( realm, next_bowler.getpID(), matchDetails.getMatch_id()).setBallsBowled(current_score_data.getNextBowlerBalls());
+                                }
+
 //                                if (current_score_data.isBowlerSwitched()) {
 //                                    assignToPlayer = 2;
 //                                    boolean ishome;
 ////                                    if(!matchDetails.isHomeTeamBatting())
 ////                                        ishome=true;
 //                                    //    selectPlayerDialog(getString(realmstudy.R.string.next_bowler));
-//                                    ((MainFragmentActivity) getActivity()).showSelectplayer(matchDetails.getMatch_id(), !matchDetails.isHomeTeamBatting(), current_bowler, getString(R.string.next_bowler));
+//                                    ((MainFragmentActivity) getActivity()).showSelectplayer(matchDetails.getMatch_id(), !matchDetails.isHomeTeamBatting(), current_bowler, getString(R.string.next_bowler),assignToPlayer);
 //                                }
-//                            }
-//
-//                        }
-//                    });
-//
-//                }
+                            //}
+
+
+
+
+                        }
+                    });
+
+                }
             redoCount = 0;
             undoCount = 0;
-
-
             addScore(null);
         }
-//            else {
-//                Toast.makeText(getActivity(), "Game Over", Toast.LENGTH_SHORT).show();
-//                switchInnings();
-//            }
     }
 
     private void switchInnings() {
@@ -295,6 +305,7 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
         non_striker = null;
         current_bowler = null;
         next_bowler = null;
+        //  Toast.makeText(getActivity(),"ssssss",Toast.LENGTH_LONG).show();
         realm.beginTransaction();
         matchDetails.setFirstInningsCompleted(true);
         matchDetails.setMatchStatus(CommanData.MATCH_BREAK_FI);
@@ -303,18 +314,30 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
         realm.commitTransaction();
         checkPlayerNotNull();
     }
-    private boolean checkInningsGoingOn(){
-        System.out.println("_________WW" + RealmDB.noOfWicket(getActivity(), realm, matchDetails.getMatch_id(), !matchDetails.isFirstInningsCompleted()
-        ) + "___" + matchDetails.getTotalPlayers()+"___"+((current_score_data!=null)?current_score_data.getTotalBalls():"null"));
 
-        if ((current_score_data != null && (current_score_data.getTotalBalls() >= (matchDetails.getOvers() * 6))) ||
-                (RealmDB.noOfWicket(getActivity(), realm, matchDetails.getMatch_id(), !matchDetails.isFirstInningsCompleted()
-                ) >= (matchDetails.getTotalPlayers() - 1))) {
-            if (matchDetails.getMatchStatus()==CommanData.MATCH_STARTED_SI)
-                Toast.makeText(getActivity(), "Game Over", Toast.LENGTH_SHORT).show();
-            else{
-               // Toast.makeText(getActivity(), "switch inn", Toast.LENGTH_SHORT).show();
-                if(matchDetails.getMatchStatus()==CommanData.MATCH_BREAK_FI)
+    public int getNextKey(RealmObject t, String key) {
+        try {
+            return realm.where(t.getClass()).equalTo("match_id", matchDetails.getMatch_id()).max(key).intValue() + 1;
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return 0;
+        }
+    }
+
+    private boolean checkInningsGoingOn() {
+        System.out.println("_________WW" + RealmDB.noOfWicket(getActivity(), realm, matchDetails.getMatch_id(), !matchDetails.isFirstInningsCompleted()
+        ) + "___" + matchDetails.getTotalPlayers() + "___" + ((current_score_data != null) ? current_score_data.getTotalBalls() : "null"));
+
+        if ((current_score_data != null && (lastInningsDataItem.getOver() >= (matchDetails.getOvers()))) ||
+                (RealmDB.noOfWicket(getActivity(), realm, matchDetails.getMatch_id(), !matchDetails.isFirstInningsCompleted()) >= (matchDetails.getTotalPlayers() - 1))) {
+            System.out.println("_________WWs");
+            if (matchDetails.getMatchStatus() == CommanData.MATCH_STARTED_SI) {
+                realm.beginTransaction();
+                matchDetails.setMatchStatus(CommanData.MATCH_COMPLETED);
+                realm.commitTransaction();
+                Toast.makeText(getActivity(), getString(R.string.game_over), Toast.LENGTH_SHORT).show();
+            } else {
+                System.out.println("_________WWd");
+                if (matchDetails.getMatchStatus() == CommanData.MATCH_BREAK_FI)
                     return true;
                 else {
 
@@ -323,28 +346,27 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
                 }
             }
             return false;
-        }else
+        } else
             return true;
-        //return true;
     }
 
     private boolean checkPlayerNotNull() {
         boolean ishome = false;
-        if(checkInningsGoingOn()) {
+        if (true) {
             if (striker == null) {
                 assignToPlayer = 0;
                 if (matchDetails.isHomeTeamBatting())
                     ishome = true;
                 // selectPlayerDialog(getString(realmstudy.R.string.striker));
                 System.out.println("______DDcallinit1" + ishome);
-                ((MainFragmentActivity) getActivity()).showSelectplayer(matchDetails.getMatch_id(), ishome, current_bowler, getString(realmstudy.R.string.striker));
+                ((MainFragmentActivity) getActivity()).showSelectplayer(matchDetails.getMatch_id(), ishome, current_bowler, getString(realmstudy.R.string.striker), assignToPlayer);
                 return false;
             } else if (non_striker == null) {
                 assignToPlayer = 1;
                 if (matchDetails.isHomeTeamBatting())
                     ishome = true;
                 System.out.println("______DDcallinit2" + ishome);
-                ((MainFragmentActivity) getActivity()).showSelectplayer(matchDetails.getMatch_id(), ishome, current_bowler, getString(R.string.non_striker));
+                ((MainFragmentActivity) getActivity()).showSelectplayer(matchDetails.getMatch_id(), ishome, current_bowler, getString(R.string.non_striker), assignToPlayer);
                 // selectPlayerDialog(getString(realmstudy.R.string.non_striker));
                 return false;
             } else if (current_bowler == null) {
@@ -352,17 +374,17 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
                 if (!matchDetails.isHomeTeamBatting())
                     ishome = true;
                 System.out.println("______DDcallinit3" + ishome);
-                ((MainFragmentActivity) getActivity()).showSelectplayer(matchDetails.getMatch_id(), ishome, current_bowler, getString(R.string.current_bowler));
+                ((MainFragmentActivity) getActivity()).showSelectplayer(matchDetails.getMatch_id(), ishome, current_bowler, getString(R.string.current_bowler), assignToPlayer);
                 // selectPlayerDialog(getString(realmstudy.R.string.current_bowler));
                 return false;
-            } else if (lastInningsDataItem != null && lastInningsDataItem.getWicket() != null && current_score_data != null && current_score_data.getNextBatsman() == -1) {
+            } else if (lastInningsDataItem != null && lastInningsDataItem.getWicket() != null && current_score_data != null && current_score_data.getNextBatsmanName() == null) {
                 assignToPlayer = 5;
                 ishome = false;
                 if (matchDetails.isHomeTeamBatting())
                     ishome = true;
                 // selectPlayerDialog(getString(realmstudy.R.string.striker));
                 System.out.println("______DDcallinit1" + ishome);
-                ((MainFragmentActivity) getActivity()).showSelectplayer(matchDetails.getMatch_id(), ishome, current_bowler, getString(realmstudy.R.string.next_batsman));
+                ((MainFragmentActivity) getActivity()).showSelectplayer(matchDetails.getMatch_id(), ishome, current_bowler, getString(realmstudy.R.string.next_batsman), assignToPlayer);
                 return false;
             } else if (current_score_data == null) {
                 System.out.println("______DDcallinit4" + ishome);
@@ -373,35 +395,33 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
                 return false;
             } else
                 return true;
-        }else
-        return false;
-      //  return true;
+        } else
+            return false;
+        //  return true;
     }
 
     @Override
     public void onStop() {
 //        if (matchDetails.getMatchStatus() != CommanData.MATCH_NOT_YET_STARTED)
-        if (striker != null && RealmDB.getBattingProfile(getActivity(), realm, striker.getpID(), matchDetails.getMatch_id()).getBallFaced() == 0) {
-            BatingProfile bf = RealmDB.getBattingProfile(getActivity(), realm, striker.getpID(), matchDetails.getMatch_id());
+        if (striker != null && RealmDB.getBattingProfile(realm, striker.getpID(), matchDetails.getMatch_id()).getBallFaced() == 0) {
+            BatingProfile bf = RealmDB.getBattingProfile(realm, striker.getpID(), matchDetails.getMatch_id());
             realm.beginTransaction();
             bf.setCurrentStatus(CommanData.StatusFree);
             realm.commitTransaction();
         }
-        if (non_striker != null && RealmDB.getBattingProfile(getActivity(), realm, non_striker.getpID(), matchDetails.getMatch_id()).getBallFaced() == 0) {
-            BatingProfile bf = RealmDB.getBattingProfile(getActivity(), realm, non_striker.getpID(), matchDetails.getMatch_id());
+        if (non_striker != null && RealmDB.getBattingProfile(realm, non_striker.getpID(), matchDetails.getMatch_id()).getBallFaced() == 0) {
+            BatingProfile bf = RealmDB.getBattingProfile(realm, non_striker.getpID(), matchDetails.getMatch_id());
             realm.beginTransaction();
             bf.setCurrentStatus(CommanData.StatusFree);
             realm.commitTransaction();
         }
-        if (current_bowler != null && RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).getBallsBowled() == 0) {
-            BowlingProfile bf = RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id());
+        if (current_bowler != null && RealmDB.getBowlingProfile(realm, current_bowler.getpID(), matchDetails.getMatch_id()).getBallsBowled() == 0) {
+            BowlingProfile bf = RealmDB.getBowlingProfile(realm, current_bowler.getpID(), matchDetails.getMatch_id());
             realm.beginTransaction();
             bf.setCurrentBowlerStatus(CommanData.StatusFree);
             realm.commitTransaction();
         }
-
         super.onStop();
-
     }
 
     @Override
@@ -428,58 +448,65 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
             case realmstudy.R.id.dot_txt:
                 runs = 0;
                 clearRunSelection();
+                submitbuttonClicked(SUBMIT_DELAY);
                 break;
             case realmstudy.R.id.one_run_txt:
                 runs = 1;
                 clearRunSelection();
+                submitbuttonClicked(SUBMIT_DELAY);
                 break;
             case realmstudy.R.id.two_run_txt:
                 runs = 2;
                 clearRunSelection();
+                submitbuttonClicked(SUBMIT_DELAY);
                 break;
             case realmstudy.R.id.three_run_txt:
                 runs = 3;
                 clearRunSelection();
+                submitbuttonClicked(SUBMIT_DELAY);
                 break;
             case realmstudy.R.id.four_run_txt:
                 runs = 4;
                 clearRunSelection();
+                submitbuttonClicked(SUBMIT_DELAY);
                 break;
             case realmstudy.R.id.bfour_txt:
                 runs = 4;
                 clearRunSelection();
+                submitbuttonClicked(SUBMIT_DELAY);
                 break;
             case realmstudy.R.id.bSix_txt:
                 runs = 6;
                 clearRunSelection();
+                submitbuttonClicked(SUBMIT_DELAY);
                 break;
             case realmstudy.R.id.wide_txt:
-                legal = false;
+                normal_delivery = false;
                 extraType = CommanData.typeExtraEnum.WIDE;
                 clearLegalSelection();
                 break;
             case realmstudy.R.id.no_ball_txt:
-                legal = false;
+                normal_delivery = false;
                 extraType = CommanData.typeExtraEnum.NO_BALL;
                 clearLegalSelection();
                 break;
             case realmstudy.R.id.byes_txt:
-                legal = false;
+                normal_delivery = false;
                 extraType = CommanData.typeExtraEnum.L_BYES;
                 clearLegalSelection();
                 break;
             case realmstudy.R.id.leg_byes_txt:
-                legal = false;
+                normal_delivery = false;
                 extraType = CommanData.typeExtraEnum.LEG_BYES;
                 clearLegalSelection();
                 break;
             case realmstudy.R.id.granted_txt:
-                legal = false;
+                normal_delivery = false;
                 extraType = CommanData.typeExtraEnum.GRANTED;
                 clearLegalSelection();
                 break;
             case realmstudy.R.id.legal_ball_txt:
-                legal = true;
+                normal_delivery = true;
                 clearLegalSelection();
                 break;
 
@@ -489,7 +516,7 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
     }
 
     /**
-     * Set all text color of legal layout to unselect
+     * Set all text color of normal_delivery layout to unselect
      */
     private void clearLegalSelection() {
         wide_txt.setTextColor(COLOR_UNSELECT);
@@ -523,31 +550,42 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
         InningsData inningsData = RealmDB.getInningsData(getActivity(), realm,
                 lastInningsDataItem != null ? (lastInningsDataItem.getIndex() + 1) : 0,
                 matchDetails.getMatch_id(), matchDetails.isFirstInningsCompleted());
-
+        ScoreBoardData score_data = null;
         realm.beginTransaction();
         if (matchDetails.getMatchStatus() == CommanData.MATCH_NOT_YET_STARTED)
             matchDetails.setMatchStatus(CommanData.MATCH_STARTED_FI);
-        else if(matchDetails.getMatchStatus()==CommanData.MATCH_BREAK_FI)
+        else if (matchDetails.getMatchStatus() == CommanData.MATCH_BREAK_FI)
             matchDetails.setMatchStatus(CommanData.MATCH_STARTED_SI);
-        ScoreBoardData score_data = setScoreDataForDB();
-        inningsData.setLegal(legal);
-        if (legal)
+
+        inningsData.setNormalDelivery(normal_delivery);
+        if (normal_delivery)
             inningsData.setBallType(CommanData.BALL_LEGAL);
         else
             inningsData.setBallType(extraType);
         inningsData.setMatch_id(matchDetails.getMatch_id());
         inningsData.setRun(runs);
-        inningsData.setScoreBoardData(CommanData.toString(score_data));
-        inningsData.setStriker(striker);
+        // inningsData.setScoreBoardData(CommanData.toString(score_data));
+        inningsData.setStriker(striker.getpID());
         inningsData.setFirstInnings(!matchDetails.isFirstInningsCompleted());
-        inningsData.setNonStriker(non_striker);
-        inningsData.setCurrentBowler(current_bowler);
-        inningsData.setNextBowler(next_bowler);
+        inningsData.setNonStriker(non_striker.getpID());
+        inningsData.setCurrentBowler(current_bowler.getpID());
+        inningsData.setNextBowler(next_bowler == null ? -1 : next_bowler.getpID());
         inningsData.setWicket(wicket);
+        inningsData.setDelivery(getNextKey(inningsData, "delivery"));
+        if (!normal_delivery && (extraType == CommanData.typeExtraEnum.NO_BALL || extraType == CommanData.typeExtraEnum.WIDE)) {
+            System.out.println("_______OVer" + lastInningsDataItem.getOver() + "__" + Math.floor(lastInningsDataItem.getOver()) + "__" + (lastInningsDataItem.getOver() - Math.floor(lastInningsDataItem.getOver())));
+            inningsData.setOver(lastInningsDataItem.getOver());
+        } else {
+
+            float over =RealmDB.BallinWhichOver(realm,matchDetails);
+            inningsData.setOver(over);
+        }
+        BowlingProfile current_bowler_bf=RealmDB.getBowlingProfile(realm, current_bowler.getpID(), matchDetails.getMatch_id());
         //setting status of players
-        RealmDB.getBattingProfile(getActivity(), realm, striker.getpID(), matchDetails.getMatch_id()).setCurrentStatus(CommanData.StatusBatting);
-        RealmDB.getBattingProfile(getActivity(), realm, non_striker.getpID(), matchDetails.getMatch_id()).setCurrentStatus(CommanData.StatusBatting);
-        RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).setCurrentBowlerStatus(CommanData.StatusInMatch);
+        RealmDB.getBattingProfile(realm, striker.getpID(), matchDetails.getMatch_id()).setCurrentStatus(CommanData.StatusBatting);
+        RealmDB.getBattingProfile(realm, non_striker.getpID(), matchDetails.getMatch_id()).setCurrentStatus(CommanData.StatusBatting);
+        current_bowler_bf.setCurrentBowlerStatus(CommanData.StatusInMatch);
+
 
 //        if (lastInningsDataItem != null)
 //            inningsData.setIndex(lastInningsDataItem.getIndex() + 1);
@@ -555,41 +593,61 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
 //            inningsData.setIndex(0);
 
         realm.commitTransaction();
+
+
+        RealmDB.updateBowlingProfile(realm, matchDetails, current_bowler.getpID());
+        RealmDB.updateBattingProfile(realm, matchDetails, striker.getpID());
+        if(non_striker!=null)
+        RealmDB.updateBattingProfile(realm, matchDetails, non_striker.getpID());
+        realm.beginTransaction();
+        score_data = setScoreDataForDB(wicket,inningsData.getOver());
+        inningsData.setScoreBoardData(CommanData.toString(score_data));
+        realm.commitTransaction();
         lastInningsDataItem = realm.where(InningsData.class).equalTo("match_id", matchDetails.getMatch_id()).findAll().last();
         current_score_data = CommanData.fromJson(lastInningsDataItem.getScoreBoardData(), ScoreBoardData.class);
-//        System.out.println("____________AAAA" + lastInningsDataItem.getWicket().getWicket_id());
-        updateUI();
-
+        System.out.println("____________AAAA" + lastInningsDataItem.getWicket());
+        checkAndUpdateUI();
+        System.out.println("____________AAAA2" + lastInningsDataItem.getWicket());
 
     }
 
-    private ScoreBoardData setScoreDataForDB() {
+
+
+
+    private ScoreBoardData setScoreDataForDB(Wicket wicket,float over) {
         int total_run = current_score_data.getTotalRuns() + runs;
         int total_balls = current_score_data.getTotalBalls();
         ScoreBoardData score_data = new ScoreBoardData();
-
-        if (legal) {
+        BatingProfile strikerProfile = RealmDB.getBattingProfile(realm, striker.getpID(), matchDetails.getMatch_id());
+        BowlingProfile current_bowler_bf=RealmDB.getBowlingProfile(realm, current_bowler.getpID(), matchDetails.getMatch_id());
+        BatingProfile non_strikerProfile = RealmDB.getBattingProfile(realm, non_striker.getpID(), matchDetails.getMatch_id());;
+        boolean legal = true;
+        if (!normal_delivery && (extraType == CommanData.typeExtraEnum.WIDE || extraType == CommanData.typeExtraEnum.NO_BALL))
+            legal = false;
+        if (normal_delivery) {
 
             //STRIKER
             if (striker != null) {
-                RealmDB.getBattingProfile(getActivity(), realm, striker.getpID(), matchDetails.getMatch_id()).setRuns(RealmDB.getBattingProfile(getActivity(), realm, striker.getpID(), matchDetails.getMatch_id()).getRuns() + runs);
+//                RealmDB.getBattingProfile( realm, striker.getpID(), matchDetails.getMatch_id()).setRuns(RealmDB.getBattingProfile( realm, striker.getpID(), matchDetails.getMatch_id()).getRuns() + runs);
                 score_data.setStrikerName(striker.getName());
-                score_data.setStrikerRun(RealmDB.getBattingProfile(getActivity(), realm, striker.getpID(), matchDetails.getMatch_id()).getRuns());
+                score_data.setStrikerRun(strikerProfile.getRuns());
             }
 
             //NON_STRIKER
             if (non_striker != null) {
                 score_data.setNonStrikerName(non_striker.getName());
-                score_data.setNonStrikerRun(RealmDB.getBattingProfile(getActivity(), realm, non_striker.getpID(), matchDetails.getMatch_id()).getRuns());
-                score_data.setNonStrikerBalls(RealmDB.getBattingProfile(getActivity(), realm, non_striker.getpID(), matchDetails.getMatch_id()).getBallFaced());
+                score_data.setNonStrikerRun(non_strikerProfile.getRuns());
+                score_data.setNonStrikerBalls(non_strikerProfile.getBallFaced());
             }
             //CURRENT BOWLER
             if (current_bowler != null) {
-                RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).setBallsBowled(RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).getBallsBowled() + 1);
-                RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).setRunsGranted(RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).getRunsGranted() + runs);
+//                RealmDB.getBowlingProfile( realm, current_bowler.getpID(), matchDetails.getMatch_id()).setBallsBowled(RealmDB.getBowlingProfile( realm, current_bowler.getpID(), matchDetails.getMatch_id()).getBallsBowled() + 1);
+//                RealmDB.getBowlingProfile( realm, current_bowler.getpID(), matchDetails.getMatch_id()).setRunsGranted(RealmDB.getBowlingProfile( realm, current_bowler.getpID(), matchDetails.getMatch_id()).getRunsGranted() + runs);
+
                 score_data.setCurrentBowlerName(current_bowler.getName());
-                score_data.setCurrentBowlerRuns(RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).getRunsGranted());
-                score_data.setCurrentBowlerBalls(RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).getBallsBowled());
+                score_data.setCurrentBowlerRuns(current_bowler_bf.getRunsGranted());
+                int extra_ball=current_bowler_bf.getNoBall()+current_bowler_bf.getWide();
+                score_data.setCurrentBowlerLegalBalls(current_bowler_bf.getBallsBowled()-extra_ball);
             }
 
             //NEXT BOWLER
@@ -598,63 +656,81 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
 //                next_bowler.getRecentBowlingProfile().setRunsGranted(next_bowler.getRecentBowlingProfile().getRunsGranted());
 //                score_data.setNextBowlerRuns(next_bowler.getRecentBowlingProfile().getRunsGranted());
 //                score_data.setNextBowlerBalls(next_bowler.getRecentBowlingProfile().getBallsBowled());
-
                 score_data.setNextBowlerName(next_bowler.getName());
-                RealmDB.getBowlingProfile(getActivity(), realm, next_bowler.getpID(), matchDetails.getMatch_id()).setRunsGranted(RealmDB.getBowlingProfile(getActivity(), realm, next_bowler.getpID(), matchDetails.getMatch_id()).getRunsGranted());
-                score_data.setNextBowlerRuns(RealmDB.getBowlingProfile(getActivity(), realm, next_bowler.getpID(), matchDetails.getMatch_id()).getRunsGranted());
-                score_data.setNextBowlerBalls(RealmDB.getBowlingProfile(getActivity(), realm, next_bowler.getpID(), matchDetails.getMatch_id()).getBallsBowled());
-
+                //  RealmDB.getBowlingProfile( realm, next_bowler.getpID(), matchDetails.getMatch_id()).setRunsGranted(RealmDB.getBowlingProfile( realm, next_bowler.getpID(), matchDetails.getMatch_id()).getRunsGranted());
+                score_data.setNextBowlerRuns(RealmDB.getBowlingProfile(realm, next_bowler.getpID(), matchDetails.getMatch_id()).getRunsGranted());
+                score_data.setNextBowlerBalls(RealmDB.getBowlingProfile(realm, next_bowler.getpID(), matchDetails.getMatch_id()).getBallsBowled());
             }
-
-
             score_data.setTotalRuns(total_run);
-            score_data.setStrikerBalls(current_score_data.getStrikerRun() + 1);
+            score_data.setStrikerBalls(strikerProfile.getBallFaced());
 
-            RealmDB.getBattingProfile(getActivity(), realm, striker.getpID(), matchDetails.getMatch_id()).setBallFaced(RealmDB.getBattingProfile(getActivity(), realm, striker.getpID(), matchDetails.getMatch_id()).getBallFaced() + 1);
+            // RealmDB.getBattingProfile( realm, striker.getpID(), matchDetails.getMatch_id()).setBallFaced(RealmDB.getBattingProfile( realm, striker.getpID(), matchDetails.getMatch_id()).getBallFaced() + 1);
 
             total_balls = total_balls + 1;
         } else {
+
+            //  RealmDB.updateBowlingProfile(realm,matchDetails,current_bowler.getpID());
+            if (legal) {
+                if (current_bowler != null) {
+//                    RealmDB.getBowlingProfile( realm, current_bowler.getpID(), matchDetails.getMatch_id()).setBallsBowled(RealmDB.getBowlingProfile( realm, current_bowler.getpID(), matchDetails.getMatch_id()).getBallsBowled() + 1);
+//                    RealmDB.getBowlingProfile( realm, current_bowler.getpID(), matchDetails.getMatch_id()).setRunsGranted(RealmDB.getBowlingProfile( realm, current_bowler.getpID(), matchDetails.getMatch_id()).getRunsGranted() + runs);
+                    score_data.setCurrentBowlerName(current_bowler.getName());
+                    score_data.setCurrentBowlerRuns(current_bowler_bf.getRunsGranted());
+                    score_data.setCurrentBowlerLegalBalls(current_bowler_bf.getBallsBowled());
+                }
+            }
+
+
+           // BowlingProfile current_bowler_bowlingProfile = RealmDB.getBowlingProfile(realm, current_bowler.getpID(), matchDetails.getMatch_id());
+
+
             //STRIKER
-            if (extraType == CommanData.typeExtraEnum.L_BYES || extraType == CommanData.typeExtraEnum.LEG_BYES || extraType == CommanData.typeExtraEnum.WIDE)
-                RealmDB.getBattingProfile(getActivity(), realm, striker.getpID(), matchDetails.getMatch_id()).setRuns(RealmDB.getBattingProfile(getActivity(), realm, striker.getpID(), matchDetails.getMatch_id()).getRuns());
-            else
-                RealmDB.getBattingProfile(getActivity(), realm, striker.getpID(), matchDetails.getMatch_id()).setRuns(RealmDB.getBattingProfile(getActivity(), realm, striker.getpID(), matchDetails.getMatch_id()).getRuns() + runs);
-            score_data.setNonStrikerRun(RealmDB.getBattingProfile(getActivity(), realm, non_striker.getpID(), matchDetails.getMatch_id()).getRuns());
+//            if (extraType == CommanData.typeExtraEnum.L_BYES || extraType == CommanData.typeExtraEnum.LEG_BYES || extraType == CommanData.typeExtraEnum.WIDE) {
+//                RealmDB.getBattingProfile( realm, striker.getpID(), matchDetails.getMatch_id()).setRuns(RealmDB.getBattingProfile( realm, striker.getpID(), matchDetails.getMatch_id()).getRuns());
+//
+//            } else
+//                RealmDB.getBattingProfile( realm, striker.getpID(), matchDetails.getMatch_id()).setRuns(RealmDB.getBattingProfile( realm, striker.getpID(), matchDetails.getMatch_id()).getRuns() + runs);
+            score_data.setNonStrikerRun(non_strikerProfile.getRuns());
             score_data.setStrikerName(striker.getName());
-            score_data.setStrikerRun(RealmDB.getBattingProfile(getActivity(), realm, striker.getpID(), matchDetails.getMatch_id()).getRuns());
-            RealmDB.getBattingProfile(getActivity(), realm, striker.getpID(), matchDetails.getMatch_id()).setBallFaced(RealmDB.getBattingProfile(getActivity(), realm, striker.getpID(), matchDetails.getMatch_id()).getBallFaced());
-            score_data.setStrikerBalls(current_score_data.getStrikerBalls());
-            score_data.setStrikerRun(RealmDB.getBattingProfile(getActivity(), realm, striker.getpID(), matchDetails.getMatch_id()).getRuns());
+            score_data.setStrikerRun(strikerProfile.getRuns());
+            //  RealmDB.getBattingProfile( realm, striker.getpID(), matchDetails.getMatch_id()).setBallFaced(RealmDB.getBattingProfile( realm, striker.getpID(), matchDetails.getMatch_id()).getBallFaced());
+            // if (extraType == CommanData.typeExtraEnum.NO_BALL)
+            score_data.setStrikerBalls(strikerProfile.getBallFaced());
+//            else
+//                score_data.setStrikerBalls(current_score_data.getStrikerBalls());
+            score_data.setStrikerRun(strikerProfile.getRuns());
 
             //NON_STRIKER
             score_data.setNonStrikerName(non_striker.getName());
-            score_data.setNonStrikerBalls(RealmDB.getBattingProfile(getActivity(), realm, non_striker.getpID(), matchDetails.getMatch_id()).getBallFaced());
-            score_data.setNonStrikerRun(RealmDB.getBattingProfile(getActivity(), realm, non_striker.getpID(), matchDetails.getMatch_id()).getRuns());
+            score_data.setNonStrikerBalls(non_strikerProfile.getBallFaced());
+            score_data.setNonStrikerRun(non_strikerProfile.getRuns());
 
             //CURRENT BOWLER
-            if (extraType == CommanData.typeExtraEnum.L_BYES || extraType == CommanData.typeExtraEnum.LEG_BYES
-                    || extraType == CommanData.typeExtraEnum.W_BYES || extraType == CommanData.typeExtraEnum.NB_BYES)
-                RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).setRunsGranted(RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).getRunsGranted());
-            else {
-                RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).setRunsGranted(RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).getRunsGranted() + runs + legalRun);
-            }
+//            if (extraType == CommanData.typeExtraEnum.L_BYES || extraType == CommanData.typeExtraEnum.LEG_BYES
+//                    || extraType == CommanData.typeExtraEnum.W_BYES || extraType == CommanData.typeExtraEnum.NB_BYES)
+//                RealmDB.getBowlingProfile( realm, current_bowler.getpID(), matchDetails.getMatch_id()).setRunsGranted(RealmDB.getBowlingProfile( realm, current_bowler.getpID(), matchDetails.getMatch_id()).getRunsGranted());
+//            else {
+//                RealmDB.getBowlingProfile( realm, current_bowler.getpID(), matchDetails.getMatch_id()).setRunsGranted(RealmDB.getBowlingProfile( realm, current_bowler.getpID(), matchDetails.getMatch_id()).getRunsGranted() + runs + legalRun);
+//            }
             score_data.setCurrentBowlerName(current_bowler.getName());
             score_data.setCurrentBowlerName(current_bowler.getName());
-            RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).setBallsBowled(RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).getBallsBowled());
-            score_data.setCurrentBowlerBalls(RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).getBallsBowled());
-            score_data.setCurrentBowlerRuns(RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).getRunsGranted());
+            // RealmDB.getBowlingProfile( realm, current_bowler.getpID(), matchDetails.getMatch_id()).setBallsBowled(RealmDB.getBowlingProfile( realm, current_bowler.getpID(), matchDetails.getMatch_id()).getBallsBowled());
+            score_data.setCurrentBowlerLegalBalls(current_bowler_bf.getBallsBowled());
+            score_data.setCurrentBowlerRuns(current_bowler_bf.getRunsGranted());
+
             switch (extraType) {
+
                 case WIDE:
-                    RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).setWide(RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).getWide() + 1);
+                    current_bowler_bf.setWide(current_bowler_bf.getWide() + 1);
                     break;
                 case NO_BALL:
-                    RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).setWide(RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).getNoBall() + 1);
+                    current_bowler_bf.setNoBall(current_bowler_bf.getNoBall() + 1);
                     break;
                 case L_BYES:
-                    RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).setByes(RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).getByes() + 1);
+                    current_bowler_bf.setByes(current_bowler_bf.getByes() + 1);
                     break;
                 case LEG_BYES:
-                    RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).setByes(RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id()).getByes() + 1);
+                    current_bowler_bf.setByes(current_bowler_bf.getByes() + 1);
                     break;
             }
 
@@ -662,27 +738,31 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
             //NEXT BOWLER
             if (next_bowler != null) {
                 score_data.setNextBowlerName(next_bowler.getName());
-                RealmDB.getBowlingProfile(getActivity(), realm, next_bowler.getpID(), matchDetails.getMatch_id()).setRunsGranted(RealmDB.getBowlingProfile(getActivity(), realm, next_bowler.getpID(), matchDetails.getMatch_id()).getRunsGranted());
-                score_data.setNextBowlerRuns(RealmDB.getBowlingProfile(getActivity(), realm, next_bowler.getpID(), matchDetails.getMatch_id()).getRunsGranted());
-                score_data.setNextBowlerBalls(RealmDB.getBowlingProfile(getActivity(), realm, next_bowler.getpID(), matchDetails.getMatch_id()).getBallsBowled());
+                //  RealmDB.getBowlingProfile( realm, next_bowler.getpID(), matchDetails.getMatch_id()).setRunsGranted(RealmDB.getBowlingProfile( realm, next_bowler.getpID(), matchDetails.getMatch_id()).getRunsGranted());
+                score_data.setNextBowlerRuns(RealmDB.getBowlingProfile(realm, next_bowler.getpID(), matchDetails.getMatch_id()).getRunsGranted());
+                score_data.setNextBowlerBalls(RealmDB.getBowlingProfile(realm, next_bowler.getpID(), matchDetails.getMatch_id()).getBallsBowled());
             }
 //Totals
 
             //CURRENT BOWLER
-            if (extraType == CommanData.typeExtraEnum.L_BYES || extraType == CommanData.typeExtraEnum.LEG_BYES)
+            if (extraType == CommanData.typeExtraEnum.L_BYES || extraType == CommanData.typeExtraEnum.LEG_BYES) {
                 score_data.setTotalRuns(total_run + 0);
-            else
+                total_balls = total_balls + 1;
+            } else {
                 score_data.setTotalRuns(total_run + legalRun);
+            }
+//            }if (extraType == CommanData.typeExtraEnum.L_BYES || extraType == CommanData.typeExtraEnum.LEG_BYES)
+//                total_balls = total_balls + 1;
 
 
         }
-
-
+        boolean current_overCompleted = false;
+        if (legal)
+            current_overCompleted = (over%1==0);
         score_data.setTotalBalls(total_balls);
-        score_data.setStrikerBalls(RealmDB.getBattingProfile(getActivity(), realm, striker.getpID(), matchDetails.getMatch_id()).getBallFaced());
-        score_data.setNonStrikerBalls(RealmDB.getBattingProfile(getActivity(), realm, non_striker.getpID(), matchDetails.getMatch_id()).getBallFaced());
-
-
+        //  score_data.setStrikerBalls(RealmDB.getBattingProfile( realm, striker.getpID(), matchDetails.getMatch_id()).getBallFaced());
+        score_data.setNonStrikerBalls(non_strikerProfile.getBallFaced());
+        score_data.setTotal_wicket(RealmDB.noOfWicket(getActivity(), realm, matchDetails.getMatch_id(), !matchDetails.isFirstInningsCompleted()));
         if (redoCount == 0 && undoCount == 0) {
             if (current_score_data.getTotalBalls() == 0) {
                 if (runs % 2 == 1) {
@@ -692,25 +772,32 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
                     //   Toast.makeText(getActivity(), "switching12", Toast.LENGTH_SHORT).show();
                 } else score_data.setBatsmanSwitched(false);
             } else {
-                System.out.println("_____________aaaaaa"+current_score_data.getTotalBalls() + (legal ? 1 : 0) / 6 +"__"+ matchDetails.getOvers());
-                if ((current_score_data.getTotalBalls() + (legal ? 1 : 0)) % 6 == 0
-                        && (current_score_data.getTotalBalls() + (legal ? 1 : 0)) / 6 < matchDetails.getOvers() ) {
-                    Toast.makeText(getActivity(), "asssssss"+matchDetails.getMatchStatus(), Toast.LENGTH_SHORT).show();
-
-                    next_bowler = current_bowler;
-                    assignToPlayer = 2;
-                    boolean ishome = false;
-                    if (!matchDetails.isHomeTeamBatting())
-                        ishome = true;
-                    ((MainFragmentActivity) getActivity()).showSelectplayer(matchDetails.getMatch_id(), ishome, current_bowler, getString(R.string.next_bowler));
-                    score_data.setAskNextBowler(true);
-
-
-                } else
+               // System.out.println("_____________aaaaaa" + nextBallinWhichOver() + "__" + Math.floor(lastInningsDataItem.getOver()) + "__" + matchDetails.getOvers());
+//                if ((current_score_data.getTotalBalls() + (legal ? 1 : 0)) % 6 == 0
+//                        && (current_score_data.getTotalBalls() + (legal ? 1 : 0)) / 6 < matchDetails.getOvers()) {
+                if (!normal_delivery && (extraType == CommanData.typeExtraEnum.NO_BALL || extraType == CommanData.typeExtraEnum.WIDE)) {
+//                    System.out.println("_______OVer"+ lastInningsDataItem.getOver() +"__"+Math.floor(lastInningsDataItem.getOver())+"__"+(lastInningsDataItem.getOver() -Math.floor(lastInningsDataItem.getOver())));
+//                    inningsData.setOver(lastInningsDataItem.getOver());
                     score_data.setAskNextBowler(false);
+                } else {
+                    if (current_overCompleted && over < matchDetails.getOvers()) {
+                        Toast.makeText(getActivity(), "asssssss" + matchDetails.getMatchStatus(), Toast.LENGTH_SHORT).show();
+
+                        next_bowler = current_bowler;
+                        assignToPlayer = 2;
+                        boolean ishome = false;
+                        if (!matchDetails.isHomeTeamBatting())
+                            ishome = true;
+                        ((MainFragmentActivity) getActivity()).showSelectplayer(matchDetails.getMatch_id(), ishome, current_bowler, getString(R.string.next_bowler), assignToPlayer);
+                        score_data.setAskNextBowler(true);
+
+
+                    } else
+                        score_data.setAskNextBowler(false);
+                }
 
                 if (((runs % 2 == 1 && (current_score_data.getTotalBalls() + (legal ? 1 : 0)) % 6 != 0)
-                        || (runs % 2 == 0 && (current_score_data.getTotalBalls() + (legal ? 1 : 0)) % 6 == 0))&&checkInningsGoingOn()) {
+                        || (runs % 2 == 0 && (current_score_data.getTotalBalls() + (legal ? 1 : 0)) % 6 == 0)) && checkInningsGoingOn()) {
                     // Toast.makeText(getActivity(), "switching_____", Toast.LENGTH_SHORT).show();
                     score_data.setBatsmanSwitched(true);
                 } else
@@ -725,113 +812,56 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
         if (score_data.isBatsmanSwitched())
             swapStriker(true);
 
+        score_data.setHomeTeam(matchDetails.getHomeTeam().nick_name);
+        score_data.setAwayTeam(matchDetails.getAwayTeam().nick_name);
+        score_data.setHomeTeamBatting(matchDetails.isHomeTeamBatting());
+        if (matchDetails.isFirstInningsCompleted()) {
+            score_data.setFirstInningsTotal(RealmDB.getFirstInningsTotal(realm, matchDetails));
+            score_data.setfirstInningsWicket(RealmDB.noOfWicket(getActivity(), realm, matchDetails.getMatch_id(), true));
+
+            score_data.setFirstIinningsOver(RealmDB.getFirstInningsOver(realm, matchDetails));
+        } else {
+            score_data.setMatchQuote(matchDetails.getToss().nick_name + " " + getString(R.string.won_and_elect) + " " + matchDetails.getChooseTo());
+        }
+        score_data.setShotAt(groundFragment.getCordinate());
+        ArrayList<String> ss = current_score_data.getLastThreeOvers();
+        if (ss == null)
+            ss = new ArrayList<>();
+        if (ss.size() > 23) {
+            ss.remove(0);
+        }
+        ss.add(get_delivery_result(runs, wicket, normal_delivery, extraType));
+        if (current_overCompleted)
+            ss.add("|");
+        score_data.setLastThreeOvers(ss);
+        score_data.setTotalOver(String.valueOf(over));
+
         return score_data;
+    }
+
+    private String get_delivery_result(int runs, Wicket wicket, boolean legal, CommanData.typeExtraEnum extraType) {
+        String type = "";
+        type = runs + (wicket != null ? "o" : "") + (legal ? "" : extraType.toString().charAt(0));
+
+        return type;
     }
 
     private void swapStriker(boolean withText) {
         Player dummy = striker;
         striker = non_striker;
         non_striker = dummy;
-        if (withText) {
-            striker_score.setText(String.valueOf(current_score_data.getNonStrikerRun()));
-            striker_balls.setText(String.valueOf(current_score_data.getNonStrikerBalls()));
-            non_striker_score.setText(String.valueOf(current_score_data.getStrikerRun()));
-            non_striker_balls.setText(String.valueOf(current_score_data.getStrikerBalls()));
-            striker_name.setText(current_score_data.getNonStrikerName() + "*");
-            non_striker_name.setText(current_score_data.getStrikerName());
-        }
-
+        swapStrikerText(current_score_data, withText);
     }
 
-    /**
-     * update UI to the current database using current_score_data
-     * current_score_data-> object of ScoreboardData
-     */
-    private void updateUI() {
-        System.out.println("___________updateUI");
-        if (checkPlayerNotNull()) {
-            checkUnOrRedo();
-            System.out.println("nagacheckkk" + runs % 2 + "____" + current_score_data.getTotalBalls() + current_score_data.getCurrentBowlerName());
-
-
-            striker_score.setText(String.valueOf(current_score_data.getStrikerRun()));
-            striker_balls.setText(String.valueOf(current_score_data.getStrikerBalls()));
-            non_striker_score.setText(String.valueOf(current_score_data.getNonStrikerRun()));
-            non_striker_balls.setText(String.valueOf(current_score_data.getNonStrikerBalls()));
-            striker_name.setText(current_score_data.getStrikerName() + "*");
-            non_striker_name.setText(current_score_data.getNonStrikerName());
-
-            if (current_score_data.getCurrentBowlerName() != null) {
-                current_bowler_name.setText(current_score_data.getCurrentBowlerName());
-                current_bowler_overs.setText(current_score_data.getCurrentBowlerOver());
-                current_bowler_runs.setText(String.valueOf(current_score_data.getCurrentBowlerRuns()));
-                current_bowler_lay.setVisibility(View.VISIBLE);
-            } else {
-                current_bowler_lay.setVisibility(View.GONE);
-            }
-            if (current_score_data.getNextBowlerName() != null) {
-                next_bowler_name.setText(current_score_data.getNextBowlerName());
-                next_bowler_overs.setText(current_score_data.getNextBowlerOver());
-                next_bowler_runs.setText(String.valueOf(current_score_data.getNextBowlerRuns()));
-                next_bowler_lay.setVisibility(View.VISIBLE);
-            } else {
-                next_bowler_lay.setVisibility(View.GONE);
-            }
-
-            if (current_score_data.isBatsmanSwitched()) {
-                //SwaponlyText
-
-                striker_score.setText(String.valueOf(current_score_data.getNonStrikerRun()));
-                striker_balls.setText(String.valueOf(current_score_data.getNonStrikerBalls()));
-                non_striker_score.setText(String.valueOf(current_score_data.getStrikerRun()));
-                non_striker_balls.setText(String.valueOf(current_score_data.getStrikerBalls()));
-                striker_name.setText(current_score_data.getNonStrikerName() + "*");
-                non_striker_name.setText(current_score_data.getStrikerName());
-                // Toast.makeText(getActivity(), "switching1", Toast.LENGTH_SHORT).show();
-            }
-
-            if (current_score_data.getWicket() != null) {
-                if (current_score_data.getNextBatsman() != -1) {
-                    if (current_score_data.getWicket().isStrikerOut()) {
-                        BatingProfile bf = RealmDB.getBattingProfile(getActivity(), realm, current_score_data.getNextBatsman(), matchDetails.getMatch_id());
-                        striker_score.setText(String.valueOf(bf.getRuns()));
-                        striker_balls.setText(String.valueOf(bf.getBallFaced()));
-                        striker_name.setText(RealmDB.getPlayer(getActivity(), realm, current_score_data.getNextBatsman()).getName());
-
-                    } else {
-                        BatingProfile bf = RealmDB.getBattingProfile(getActivity(), realm, current_score_data.getNextBatsman(), matchDetails.getMatch_id());
-                        non_striker_score.setText(String.valueOf(bf.getRuns()));
-                        non_striker_balls.setText(String.valueOf(bf.getBallFaced()));
-                        non_striker_name.setText(RealmDB.getPlayer(getActivity(), realm, current_score_data.getNextBatsman()).getName());
-                    }
-
-                }
-            }
-
-//            if (current_score_data.isBowlerSwitched()) {
-//                switchBowler(true);
-//            }
-
-
-            clearLegalSelection();
-            clearRunSelection();
-            legal_ball_txt.setTextColor(COLOR_SELECT);
-            dot_txt.setTextColor(COLOR_SELECT);
-            legal = true;
-            runs = 0;
-            num_balls_txt.setText(current_score_data.getTotalOver());
-            total_runs_txt.setText(String.valueOf(current_score_data.getTotalRuns()));
-        } else {
-            System.out.println("_________________falssss");
-        }
-
-    }
+//
 
     private void checkUnOrRedo() {
         if (undoCount > 0) {
             if (lastInningsDataItem.getIndex() != 0) {
-                if (realm.where(InningsData.class).findAll().get(lastInningsDataItem.getIndex() - 1) != null) {
-                    lastInningsDataItem = realm.where(InningsData.class).findAll().get(lastInningsDataItem.getIndex() - 1);
+                InningsData id = realm.where(InningsData.class).equalTo("index", RealmDB.getInningsDataIndex((lastInningsDataItem.getIndex() - 1), matchDetails)).findFirst();
+                if (id != null) {
+                    //   System.out.println("__________UUU"+realm.where(InningsData.class).equalTo("match_id",matchDetails.getMatch_id()).findAllSorted("index").last().getScoreBoardData());
+                    lastInningsDataItem = id;
                     current_score_data = CommanData.fromJson(lastInningsDataItem.getScoreBoardData(), ScoreBoardData.class);
 
                     undoCount = 0;
@@ -841,12 +871,11 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
             }
         }
         if (redoCount > 0) {
-            if ((lastInningsDataItem.getIndex() + 1) < realm.where(InningsData.class).findAll().size()) {
-                if (realm.where(InningsData.class).findAll().get(lastInningsDataItem.getIndex() + 1) != null) {
-                    lastInningsDataItem = realm.where(InningsData.class).findAll().get(lastInningsDataItem.getIndex() + 1);
-                    current_score_data = CommanData.fromJson(lastInningsDataItem.getScoreBoardData(), ScoreBoardData.class);
-                    redoCount = 0;
-                }
+            InningsData id = realm.where(InningsData.class).equalTo("index", RealmDB.getInningsDataIndex((lastInningsDataItem.getIndex() + 1), matchDetails)).findFirst();
+            if (id != null && id.getIndex() <= realm.where(InningsData.class).equalTo("match_id", matchDetails.getMatch_id()).equalTo("firstInnings", !matchDetails.isFirstInningsCompleted()).findAll().size()) {
+                lastInningsDataItem = id;
+                current_score_data = CommanData.fromJson(lastInningsDataItem.getScoreBoardData(), ScoreBoardData.class);
+                redoCount = 0;
             } else {
                 //  Toast.makeText(MainActivity.this, "rajinimurugan", Toast.LENGTH_SHORT).show();
             }
@@ -865,12 +894,13 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
         inningsData.setMatch_id(matchDetails.getMatch_id());
         // score_data.setNextBowlerName("Bowler2");
         score_data.setBatsmanSwitched(false);
-        inningsData.setLegal(legal);
+        inningsData.setNormalDelivery(normal_delivery);
         inningsData.setRun(runs);
         inningsData.setScoreBoardData(CommanData.toString(score_data));
-        inningsData.setStriker(striker);
-        inningsData.setNonStriker(non_striker);
-        inningsData.setCurrentBowler(current_bowler);
+        inningsData.setStriker(striker.getpID());
+        inningsData.setNonStriker(non_striker.getpID());
+        inningsData.setCurrentBowler(current_bowler.getpID());
+        inningsData.setOver(0);
         // inningsData.setNextBowler(null);
 
 //        inningsData.setIndex(0);
@@ -880,7 +910,7 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
         lastInningsDataItem = realm.where(InningsData.class).equalTo("match_id", matchDetails.getMatch_id()).findAll().last();
         current_score_data = CommanData.fromJson(lastInningsDataItem.getScoreBoardData(), ScoreBoardData.class);
 
-        updateUI();
+        checkAndUpdateUI();
     }
 
     private void callData() {
@@ -915,29 +945,29 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
         });
     }
 
-
     @Override
     public void messageFromDialog(int dialogType, boolean success, String data, String message) {
         System.out.println("_____Out" + dialogType + "__" + data + "__" + success);
         if (success) {
-            ((MainFragmentActivity)getActivity()).closePrevSelectPlayer();
+            ((MainFragmentActivity) getActivity()).closePrevSelectPlayer();
             if (dialogType == CommanData.DIALOG_OUT) {
 
                 Wicket wicket = RealmDB.getWicket(getActivity(), realm, data);
                 System.out.println("_____Out" + dialogType + "__" + data + "__" + wicket.getType());
                 addScore(wicket);
+                // System.out.println("_____Outsdf1" + dialogType + "__" + data + "__" + wicket.getType());
                 if (wicket.getType() != CommanData.W_RUNOUT) {
+                    realm.beginTransaction();
+                    // System.out.println("_____Outsdf2" + dialogType + "__" + data + "__" + wicket.getType()+"__"+CommanData.toString( realm.copyFromRealm(wicket)));
+                    current_score_data.setWicket(CommanData.toString(realm.copyFromRealm(wicket)));
+                    //System.out.println("_____Outsdf3" + dialogType + "__" + data + "__" + wicket.getType());
+                    lastInningsDataItem.setScoreBoardData(CommanData.toString(current_score_data));
+                    realm.commitTransaction();
+
                     striker = null;
-//                    assignToPlayer=5;
-//                    boolean ishome=false;
-//                    if (matchDetails.isHomeTeamBatting())
-//                        ishome = true;
-//                    // selectPlayerDialog(getString(realmstudy.R.string.striker));
-//                    System.out.println("______DDcallinit1" + ishome);
-//                    ((MainFragmentActivity) getActivity()).showSelectplayer(matchDetails.getMatch_id(), ishome, current_bowler, getString(realmstudy.R.string.next_batsman));
 
                 } else if (wicket.getType() == CommanData.W_RUNOUT) {
-                    Player p = wicket.getBatsman();
+                    Player p = RealmDB.getPlayer(realm, wicket.getBatsman());
                     if (p.getpID() == striker.getpID())
                         striker = null;
                     else
@@ -945,102 +975,136 @@ public class MainActivity extends Fragment implements DialogInterface, MsgToFrag
 
                 }
 
-            } else {
-                Player bb;
-
-                bb = RealmDB.getPlayer(getActivity(), realm, Integer.parseInt(data));
-                boolean ss = success;
-                System.out.println("_________________dd6" + matchDetails.getBattingTeamPlayer() + "__" + data);
-                System.out.println("checkkkk" + ss);
-//
-
-                if (assignToPlayer == 0) {
-                    striker = RealmDB.getPlayer(getActivity(), realm, bb.getpID());
-                    BatingProfile bf = RealmDB.getBattingProfile(getActivity(), realm, striker.getpID(), matchDetails.getMatch_id());
-                    realm.beginTransaction();
-                    if (matchDetails.isHomeTeamBatting())
-                        matchDetails.addHomePlayer(striker);
-                    else
-                        matchDetails.addAwayPlayer(striker);
-                    //    bf.setCurrentStatus(CommanData.StatusBatting);
-                    //striker.setRecentBatingProfile(bf);
-                    realm.commitTransaction();
-
-                } else if (assignToPlayer == 1) {
-                    if (striker.getpID() != bb.getpID()) {
-                        non_striker = RealmDB.getPlayer(getActivity(), realm, bb.getpID());
-                        BatingProfile bf = RealmDB.getBattingProfile(getActivity(), realm, non_striker.getpID(), matchDetails.getMatch_id());
-                        if (bf == null)
-                            bf = RealmDB.createBattingProfile(getActivity(), realm, non_striker.getpID(), matchDetails.getMatch_id());
-                        realm.beginTransaction();
-                        if (matchDetails.isHomeTeamBatting())
-                            matchDetails.addHomePlayer(non_striker);
-                        else
-                            matchDetails.addAwayPlayer(non_striker);
-                        //  bf.setCurrentStatus(CommanData.StatusBatting);
-                        //  non_striker.setRecentBatingProfile(bf);
-                        realm.commitTransaction();
-                    } else
-                        Toast.makeText(getContext(), getString(R.string.player_in_striker_end), Toast.LENGTH_SHORT).show();
-                } else if (assignToPlayer == 2) {
-                    current_bowler = RealmDB.getPlayer(getActivity(), realm, bb.getpID());
-                    BowlingProfile bf = RealmDB.getBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id());
-                    if (bf == null)
-                        bf = RealmDB.createBowlingProfile(getActivity(), realm, current_bowler.getpID(), matchDetails.getMatch_id());
-                    realm.beginTransaction();
-                    if (matchDetails.isHomeTeamBatting())
-                        matchDetails.addAwayPlayer(current_bowler);
-                    else
-                        matchDetails.addHomePlayer(current_bowler);
-                    //bf.setCurrentBowlerStatus(CommanData.StatusBowling);
-                    // current_bowler.setRecentBowlingProfile(bf);
-                    realm.commitTransaction();
-                } else if (assignToPlayer == 3) {
-                    next_bowler = RealmDB.getPlayer(getActivity(), realm, bb.getpID());
-                    BowlingProfile bf = RealmDB.getBowlingProfile(getActivity(), realm, next_bowler.getpID(), matchDetails.getMatch_id());
-                    if (bf == null)
-                        bf = RealmDB.createBowlingProfile(getActivity(), realm, next_bowler.getpID(), matchDetails.getMatch_id());
-                    realm.beginTransaction();
-                    if (matchDetails.isHomeTeamBatting())
-                        matchDetails.addAwayPlayer(next_bowler);
-                    else
-                        matchDetails.addHomePlayer(next_bowler);
-                    //bf.setCurrentBowlerStatus(CommanData.StatusInMatch);
-                    // next_bowler.setRecentBowlingProfile(bf);
-                    realm.commitTransaction();
-                } else if (assignToPlayer == 5) {
-                    Player dummy = RealmDB.getPlayer(getActivity(), realm, bb.getpID());
-                    BatingProfile bf = RealmDB.getBattingProfile(getActivity(), realm, dummy.getpID(), matchDetails.getMatch_id());
-                    if (bf == null)
-                        bf = RealmDB.createBattingProfile(getActivity(), realm, dummy.getpID(), matchDetails.getMatch_id());
-                    realm.beginTransaction();
-                    if (matchDetails.isHomeTeamBatting())
-                        matchDetails.addAwayPlayer(dummy);
-                    else
-                        matchDetails.addHomePlayer(dummy);
-                    //bf.setCurrentStatus(CommanData.StatusBatting);
-                    // next_bowler.setRecentBowlingProfile(bf);
-                    current_score_data.setNextBatsman(dummy.getpID());
-                    current_score_data.setNextBatsmanBalls(bf.getBallFaced());
-                    current_score_data.setNextBatsmanRun(bf.getRuns());
-                    lastInningsDataItem.setScoreBoardData(CommanData.toString(current_score_data));
-                    realm.commitTransaction();
-                    //   System.out.println("___________www"+lastInningsDataItem.getWicket().getBatsman());
-                    if (striker == null) {
-                        striker = null;
-                        striker = dummy;
-                    } else {
-                        non_striker = null;
-                        non_striker = dummy;
-                    }
-                }
-                //  selectPlayerDialog.dismiss();}
-                updateUI();
             }
+
 
         } else {
             Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void messageFromDialog(int dialogType, boolean success, String data, String message, int assignTo) {
+        System.out.println("_____Out" + dialogType + "__" + data + "__" + success);
+        if (success) {
+            ((MainFragmentActivity) getActivity()).closePrevSelectPlayer();
+//            if (dialogType == CommanData.DIALOG_OUT) {
+//
+//                Wicket wicket = RealmDB.getWicket(getActivity(), realm, data);
+//                System.out.println("_____Out" + dialogType + "__" + data + "__" + wicket.getType());
+//                addScore(wicket);
+//                // System.out.println("_____Outsdf1" + dialogType + "__" + data + "__" + wicket.getType());
+//                if (wicket.getType() != CommanData.W_RUNOUT) {
+//                    realm.beginTransaction();
+//                    // System.out.println("_____Outsdf2" + dialogType + "__" + data + "__" + wicket.getType()+"__"+CommanData.toString( realm.copyFromRealm(wicket)));
+//                    current_score_data.setWicket(CommanData.toString(realm.copyFromRealm(wicket)));
+//                    //System.out.println("_____Outsdf3" + dialogType + "__" + data + "__" + wicket.getType());
+//                    lastInningsDataItem.setScoreBoardData(CommanData.toString(current_score_data));
+//                    realm.commitTransaction();
+//
+//                    striker = null;
+//
+//                } else if (wicket.getType() == CommanData.W_RUNOUT) {
+//                    Player p = RealmDB.getPlayer( realm, wicket.getBatsman());
+//                    if (p.getpID() == striker.getpID())
+//                        striker = null;
+//                    else
+//                        non_striker = null;
+//
+//                }
+//
+//            } else {
+            Player bb;
+
+            bb = RealmDB.getPlayer(realm, Integer.parseInt(data));
+            boolean ss = success;
+            System.out.println("checkkkk" + ss);
+//
+
+            if (assignTo == 0) {
+                striker = RealmDB.getPlayer(realm, bb.getpID());
+                BatingProfile bf = RealmDB.getBattingProfile(realm, striker.getpID(), matchDetails.getMatch_id());
+                realm.beginTransaction();
+                if (matchDetails.isHomeTeamBatting())
+                    matchDetails.addHomePlayer(striker);
+                else
+                    matchDetails.addAwayPlayer(striker);
+                realm.commitTransaction();
+
+            } else if (assignTo == 1) {
+                if (striker.getpID() != bb.getpID()) {
+                    non_striker = RealmDB.getPlayer(realm, bb.getpID());
+                    BatingProfile bf = RealmDB.getBattingProfile(realm, non_striker.getpID(), matchDetails.getMatch_id());
+                    if (bf == null)
+                        bf = RealmDB.createBattingProfile(realm, non_striker.getpID(), matchDetails.getMatch_id());
+                    realm.beginTransaction();
+                    if (matchDetails.isHomeTeamBatting())
+                        matchDetails.addHomePlayer(non_striker);
+                    else
+                        matchDetails.addAwayPlayer(non_striker);
+                    realm.commitTransaction();
+                } else
+                    Toast.makeText(getContext(), getString(R.string.player_in_striker_end), Toast.LENGTH_SHORT).show();
+            } else if (assignTo == 2) {
+                current_bowler = RealmDB.getPlayer(realm, bb.getpID());
+                BowlingProfile bf = RealmDB.getBowlingProfile(realm, current_bowler.getpID(), matchDetails.getMatch_id());
+                if (bf == null)
+                    bf = RealmDB.getBowlingProfile(realm, current_bowler.getpID(), matchDetails.getMatch_id());
+                realm.beginTransaction();
+                if (matchDetails.isHomeTeamBatting())
+                    matchDetails.addAwayPlayer(current_bowler);
+                else
+                    matchDetails.addHomePlayer(current_bowler);
+                realm.commitTransaction();
+            } else if (assignTo == 3) {
+                next_bowler = RealmDB.getPlayer(realm, bb.getpID());
+                BowlingProfile bf = RealmDB.getBowlingProfile(realm, next_bowler.getpID(), matchDetails.getMatch_id());
+                if (bf == null)
+                    bf = RealmDB.getBowlingProfile(realm, next_bowler.getpID(), matchDetails.getMatch_id());
+                realm.beginTransaction();
+                if (matchDetails.isHomeTeamBatting())
+                    matchDetails.addAwayPlayer(next_bowler);
+                else
+                    matchDetails.addHomePlayer(next_bowler);
+                realm.commitTransaction();
+            } else if (assignTo == 5) {
+                Player dummy = RealmDB.getPlayer(realm, bb.getpID());
+                BatingProfile bf = RealmDB.getBattingProfile(realm, dummy.getpID(), matchDetails.getMatch_id());
+                if (bf == null)
+                    bf = RealmDB.createBattingProfile(realm, dummy.getpID(), matchDetails.getMatch_id());
+                realm.beginTransaction();
+                if (matchDetails.isHomeTeamBatting())
+                    matchDetails.addAwayPlayer(dummy);
+                else
+                    matchDetails.addHomePlayer(dummy);
+                //bf.setCurrentStatus(CommanData.StatusBatting);
+                // next_bowler.setRecentBowlingProfile(bf);
+
+                current_score_data.setNextBatsmanName(dummy.getName());
+                current_score_data.setNextBatsmanBalls(bf.getBallFaced());
+                current_score_data.setNextBatsmanRun(bf.getRuns());
+                lastInningsDataItem.setScoreBoardData(CommanData.toString(current_score_data));
+                realm.commitTransaction();
+                //   System.out.println("___________www"+lastInningsDataItem.getWicket().getBatsman());
+                if (striker == null) {
+                    striker = null;
+                    striker = dummy;
+                } else {
+                    non_striker = null;
+                    non_striker = dummy;
+                }
+            }
+            //  selectPlayerDialog.dismiss();}
+            checkAndUpdateUI();
+
+        } else {
+            Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void messageFromDialog(int dialogType, boolean success, ArrayList<Integer> data, String message) {
+
     }
 }
 

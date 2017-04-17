@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">RealmStudy</string>
     <string name="ph_no">Phone Number</string>
-    <string name="select_from_db">Select from Database :</string>
+    <string name="select_from_db">From DB :</string>
     <string name="or">OR</string>
     <string name="from_contacts">From Contacts</string>
     <string name="create_new">Create New Player :</string>
@@ -24,7 +24,7 @@
     <string name="run_out_by">Run out by :</string>
     <string name="wicket_of">Wicket of:</string>
     <string name="wicket">Wicket</string>
-    <string name="add_player_to">Add player to fielding team:</string>
+    <string name="add_player_bowling_team">Add player to fielding team</string>
     <string name="home_team">Home Team</string>
     <string name="away_team">Away Team</string>
     <string name="Noofplayers">No of players</string>
@@ -67,8 +67,33 @@
     <string name="next_batsman">Next Batsman</string>
     <string name="no_spell">Bowler can\'t spell</string>
     <string name="bowled_limited">Bowled limited over</string>
-<string name="player_in_striker_end">Player in striker end</string>
-
+    <string name="player_in_striker_end">Player in striker end</string>
+    <string name="desc">Description</string>
+    <string name="home_team_player">HomeTeam Player</string>
+    <string name="away_teamPlay">Away Team Player</string>
+    <string name="time">Time</string>
+    <string name="share">Share</string>
+    <string name="next">next</string>
+    <string name="vs">Vs</string>
+    <string name="players">Players</string>
+    <string name="atsym">\@</string>
+    <string name="game_over">Game Over</string>
+    <string name="back">Back</string>
+    <string name="re_toss_r_edit">ReToss or Edit</string>
+    <string name="won_toss">Won Toss</string>
+    <string name="completed">Completed</string>
+    <string name="innings_break">Innings Break</string>
+    <string name="on_going">On Going</string>
+    <string name="match_not_started">Yet to start</string>
+    <string name="won_and_elect">won toss and elect to</string>
+    <string name="match">Match</string>
+    <string name="refree">Refree</string>
+    <string name="third_Umpire">3rd Umpire</string>
+    <string name="umpires">Umpires</string>
+    <string name="date">Date</string>
+    <string name="series">Series</string>
+    <string name="squads">Squads</string>
+    <string name="info">Info</string>
     <string-array name="run_scored_before_runout">
         <item>0</item>
         <item>1</item>

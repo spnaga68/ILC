@@ -9,9 +9,7 @@ import android.widget.TextView;
 
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmRecyclerViewAdapter;
-import realmstudy.MainFragmentActivity;
 import realmstudy.R;
-import realmstudy.data.RealmObjectData.Player;
 import realmstudy.data.RealmObjectData.Team;
 
 /**
@@ -49,7 +47,7 @@ public class TeamListAdapter extends RealmRecyclerViewAdapter<Team, TeamListAdap
         public MyViewHolder(View view) {
             super(view);
             title = (TextView) view.findViewById(R.id.playername);
-            ph_no= (TextView) view.findViewById(R.id.ph_no);
+            ph_no= (TextView) view.findViewById(R.id.time);
             view.setOnLongClickListener(this);
         }
 

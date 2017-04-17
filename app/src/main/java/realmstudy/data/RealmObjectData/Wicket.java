@@ -9,15 +9,18 @@ import realmstudy.data.CommanData;
  */
 public class Wicket extends RealmObject {
     int match_id;
-    Player batsman;
-    Player bowler;
+    int batsman;
+    int bowler;
     String over;
     int type;
-    Player caughtBy;
-    Player runoutBy;
+    int caughtBy;
+    int runoutBy;
     @PrimaryKey
     String wicket_id;
     boolean isStrikerOut=true;
+    
+    
+    
     public void setStrikerOut(boolean strikerOut) {
         isStrikerOut = strikerOut;
     }
@@ -47,19 +50,19 @@ public class Wicket extends RealmObject {
         this.match_id = match_id;
     }
 
-    public Player getBatsman() {
+    public int getBatsman() {
         return batsman;
     }
 
-    public void setBatsman(Player batsman) {
+    public void setBatsman(int batsman) {
         this.batsman = batsman;
     }
 
-    public Player getBowler() {
+    public int getBowler() {
         return bowler;
     }
 
-    public void setBowler(Player bowler) {
+    public void setBowler(int bowler) {
         this.bowler = bowler;
     }
 
@@ -79,19 +82,19 @@ public class Wicket extends RealmObject {
         this.type = type;
     }
 
-    public Player getCaughtBy() {
+    public int getCaughtBy() {
         return caughtBy;
     }
 
-    public void setCaughtBy(Player caughtBy) {
+    public void setCaughtBy(int caughtBy) {
         this.caughtBy = caughtBy;
     }
 
-    public Player getRunoutBy() {
+    public int getRunoutBy() {
         return runoutBy;
     }
 
-    public void setRunoutBy(Player runoutBy) {
+    public void setRunoutBy(int runoutBy) {
         this.runoutBy = runoutBy;
     }
 

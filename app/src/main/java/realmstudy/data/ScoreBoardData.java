@@ -1,34 +1,149 @@
 package realmstudy.data;
 
-import io.realm.RealmObject;
-import realmstudy.data.RealmObjectData.Wicket;
+import java.util.ArrayList;
 
 /**
  * Created by developer on 9/12/16.
  */
-public class ScoreBoardData  {
+public class ScoreBoardData {
     int totalRuns;
     int totalBalls;
+    int firstIinningsWicket = 0;
+    int firstInningsTotal = 0;
+    private String total_over;
+
+    public String getShotAt() {
+        return shotAt;
+    }
+
+    public void setShotAt(String shotAt) {
+        this.shotAt = shotAt;
+    }
+
+    public String getFirstIinningsOver() {
+        return firstIinningsOver;
+    }
+
+    String shotAt;
+
+    public void setMatchQuote(String matchQuote) {
+        this.matchQuote = matchQuote;
+    }
+
+    private String matchQuote;
+
+    public String getFirstInningsOver() {
+        return firstIinningsOver;
+    }
+
+    public void setFirstIinningsOver(String firstIinningsOver) {
+        this.firstIinningsOver = firstIinningsOver;
+    }
+
+    private String firstIinningsOver = "0";
+
+    public boolean isHomeTeamBatting() {
+        return isHomeTeamBatting;
+    }
+
+    public void setHomeTeamBatting(boolean homeTeamBatting) {
+        isHomeTeamBatting = homeTeamBatting;
+    }
+
+    public int getFirstIinningsWicket() {
+        return firstIinningsWicket;
+    }
+
+    public void setFirstIinningsWicket(int firstIinningsWicket) {
+        this.firstIinningsWicket = firstIinningsWicket;
+    }
+
+    boolean isHomeTeamBatting;
+
+
     int StrikerRun;
     int StrikerBalls;
     int NonStrikerRun;
     int NonStrikerBalls;
-    int currentBowlerBalls,currentBowlerRuns;
-    int nextBowlerBalls,nextBowlerRuns;
-    String StrikerName,NonStrikerName;
-    int nextBatsman=-1;
+    int currentBowlerBalls, currentBowlerRuns;
+    int nextBowlerBalls, nextBowlerRuns;
+    String StrikerName, NonStrikerName;
+    String nextBatsmanName;
     int nextBatsmanRun;
     int nextBatsmanBalls;
-    Wicket wicket;
-    String CurrentBowlerName,NextBowlerName;
+    String wicket;
+
+    int total_wicket;
+    String CurrentBowlerName, NextBowlerName;
+    ArrayList<String> lastThreeOvers;
+    String awayTeam;
+    String homeTeam;
 
 
-    public int getNextBatsman() {
-        return nextBatsman;
+    public int getFirstInningsTotal() {
+        return firstInningsTotal;
     }
 
-    public void setNextBatsman(int nextBatsman) {
-        this.nextBatsman = nextBatsman;
+    public void setFirstInningsTotal(int firstInningsTotal) {
+        this.firstInningsTotal = firstInningsTotal;
+    }
+
+
+    public int getfirstIinningsWicket() {
+        return firstIinningsWicket;
+    }
+
+
+    public void setfirstInningsWicket(int firstIinningsWicket) {
+        this.firstIinningsWicket = firstIinningsWicket;
+    }
+
+
+    public ArrayList<String> getLastThreeOvers() {
+        return lastThreeOvers;
+    }
+
+    public void setLastThreeOvers(ArrayList lastTwelveBalls) {
+        this.lastThreeOvers = lastTwelveBalls;
+    }
+
+
+    public String getHomeTeam() {
+        return homeTeam;
+    }
+
+    public void setHomeTeam(String homeTeam) {
+        this.homeTeam = homeTeam;
+    }
+
+    public String getAwayTeam() {
+        return awayTeam;
+    }
+
+    public void setAwayTeam(String awayTeam) {
+        this.awayTeam = awayTeam;
+    }
+
+
+    public int getTotal_wicket() {
+        return total_wicket;
+    }
+
+    public void setTotal_wicket(int total_wicket) {
+        this.total_wicket = total_wicket;
+    }
+
+    public void setBowlerSwitched(boolean bowlerSwitched) {
+        this.bowlerSwitched = bowlerSwitched;
+    }
+
+
+    public String getNextBatsmanName() {
+        return nextBatsmanName;
+    }
+
+    public void setNextBatsmanName(String nextBatsmanName) {
+        this.nextBatsmanName = nextBatsmanName;
     }
 
     public int getNextBatsmanRun() {
@@ -48,16 +163,13 @@ public class ScoreBoardData  {
     }
 
 
-
-    public Wicket getWicket() {
+    public String getWicket() {
         return wicket;
     }
 
-    public void setWicket(Wicket wicket) {
+    public void setWicket(String wicket) {
         this.wicket = wicket;
     }
-
-
 
 
     boolean batsmanSwitched;
@@ -76,8 +188,8 @@ public class ScoreBoardData  {
         return currentBowlerBalls;
     }
 
-    public void setCurrentBowlerBalls(int currentBowlerBalls) {
-        this.currentBowlerBalls = currentBowlerBalls;
+    public void setCurrentBowlerLegalBalls(int currentBowlerLegalBalls) {
+        this.currentBowlerBalls = currentBowlerLegalBalls;
     }
 
     public int getCurrentBowlerRuns() {
@@ -105,7 +217,6 @@ public class ScoreBoardData  {
     }
 
 
-
     public String getCurrentBowlerName() {
         return CurrentBowlerName;
     }
@@ -123,7 +234,6 @@ public class ScoreBoardData  {
     }
 
 
-
     public boolean isBatsmanSwitched() {
         return batsmanSwitched;
     }
@@ -131,7 +241,6 @@ public class ScoreBoardData  {
     public void setBatsmanSwitched(boolean batsmanSwitched) {
         this.batsmanSwitched = batsmanSwitched;
     }
-
 
 
     public String getStrikerName() {
@@ -183,7 +292,6 @@ public class ScoreBoardData  {
     }
 
 
-
     public int getTotalRuns() {
         return totalRuns;
     }
@@ -200,26 +308,33 @@ public class ScoreBoardData  {
         this.totalBalls = totalBalls;
     }
 
-    public String getTotalOver(){
-       return ballsToOver(totalBalls);
+    public void setTotalOver(String total_over) {
+        this.total_over = total_over;
     }
 
-    public String getCurrentBowlerOver(){
+    public String getTotalOver() {
+        return total_over;
+    }
+
+    public String getCurrentBowlerOver() {
         return ballsToOver(currentBowlerBalls);
     }
-    public String getNextBowlerOver(){
+
+    public String getNextBowlerOver() {
         return ballsToOver(nextBowlerBalls);
     }
 
-    private String  ballsToOver(int balls){
-        String over="0.0";
-        if(balls>=6)
-        {
-            over= (balls/6)+"."+(balls%6);
-        }else{
-            over="0."+balls;
+    private String ballsToOver(int balls) {
+        String over = "0.0";
+        if (balls >= 6) {
+            over = (balls / 6) + "." + (balls % 6);
+        } else {
+            over = "0." + balls;
         }
-        return  over;
+        return over;
     }
 
+    public String getMatchQuote() {
+        return matchQuote;
+    }
 }
